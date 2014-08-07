@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="cbGcov (unix)" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="default">
+				<Option output="../../../devel/share/codeblocks/plugins/cbGcov" prefix_auto="1" extension_auto="1" />
+				<Option object_output="../../../.objs/plugins/contrib/cbGcov" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option parameters="--debug-log -na -ns -nd" />
+				<Option host_application="../../../devel/codeblocks" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="`pkg-config --cflags codeblocks`" />
+					<Add option="`wx-config --cflags`" />
+					<Add option="-Ulinux" />
+					<Add option="-Uunix" />
+					<Add option="-Winvalid-pch" />
+					<Add option="-fexceptions" />
+					<Add option="-fPIC" />
+					<Add option="-DcbDEBUG" />
+					<Add option="-DCB_PRECOMP" />
+					<Add option="-DWX_PRECOMP" />
+					<Add option="-DwxUSE_UNICODE" />
+					<Add directory="../../../include" />
+					<Add directory="../../../sdk/wxscintilla/include" />
+				</Compiler>
+				<Linker>
+					<Add option="`pkg-config --libs codeblocks`" />
+					<Add option="`wx-config --libs`" />
+					<Add directory="../../../devel" />
+				</Linker>
+				<ExtraCommands>
+					<Add after="zip -j9 ../../../devel/share/codeblocks/cbGcov.zip manifest.xml" />
+				</ExtraCommands>
+			</Target>
+		</Build>
+		<VirtualTargets>
+			<Add alias="All" targets="default;" />
+		</VirtualTargets>
+		<Unit filename="GcovProcess.cpp" />
+		<Unit filename="GcovProcess.h" />
+		<Unit filename="SummaryDialog.cpp" />
+		<Unit filename="SummaryDialog.h" />
+		<Unit filename="cbGcov.cpp" />
+		<Unit filename="cbGcov.h" />
+		<Unit filename="manifest.xml" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<wxsmith version="1">
+				<resources>
+					<wxDialog wxs="wxsmith/SummaryDialog.wxs" src="SummaryDialog.cpp" hdr="SummaryDialog.h" name="SummaryDialog" language="CPP" />
+					<wxDialog wxs="wxsmith/CallListDialog.wxs" src="CallListDialog.cpp" hdr="CallListDialog.h" name="CallListDialog" language="CPP" />
+					<wxDialog wxs="wxsmith/CallButterflyDialog.wxs" src="CallButterflyDialog.cpp" hdr="CallButterflyDialog.h" name="CallButterflyDialog" language="CPP" />
+				</resources>
+			</wxsmith>
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
