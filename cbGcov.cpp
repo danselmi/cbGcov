@@ -34,16 +34,15 @@ namespace
 
 }
 
-#define gcovNa        5
-#define gcovOk        6
-#define gcovKo        7
+const int cbGcovNaMarker = 10;
+const int cbGcovOkMarker = 11;
+const int cbGcovKoMarker = 12;
 
-const int ourMargin = 4;
-const int ourNaStyle = 80;
-const int ourOkStyle = 81;
-const int ourKoStyle = 82;
-const int alpha = 12;
+const int cbGcovMarginNumber = 4;
 
+const int cbGcovNaStyle = 80;
+const int cbGcovOkStyle = 81;
+const int cbGcovKoStyle = 82;
 
 
 // events handling
@@ -197,22 +196,22 @@ void cbGcov::InitTextCtrlForCovData(cbStyledTextCtrl *stc)
     return;
   }
   // extra margin with coverage numbers per line
-  stc->StyleSetForeground(ourNaStyle, *wxBLACK);
-  stc->StyleSetForeground(ourOkStyle, *wxGREEN);
-  stc->StyleSetForeground(ourKoStyle, *wxRED);
+  stc->StyleSetForeground(cbGcovNaStyle, *wxBLACK);
+  stc->StyleSetForeground(cbGcovOkStyle, *wxGREEN);
+  stc->StyleSetForeground(cbGcovKoStyle, *wxRED);
 
-  stc->StyleSetBackground(ourNaStyle, stc->StyleGetBackground(33));
-  stc->StyleSetBackground(ourOkStyle, stc->StyleGetBackground(33));
-  stc->StyleSetBackground(ourKoStyle, stc->StyleGetBackground(33));
+  stc->StyleSetBackground(cbGcovNaStyle, stc->StyleGetBackground(wxSCI_STYLE_LINENUMBER));
+  stc->StyleSetBackground(cbGcovOkStyle, stc->StyleGetBackground(wxSCI_STYLE_LINENUMBER));
+  stc->StyleSetBackground(cbGcovKoStyle, stc->StyleGetBackground(wxSCI_STYLE_LINENUMBER));
 
   // some color for the line:
-  stc->MarkerSetBackground(gcovNa, *wxBLACK);
-  stc->MarkerSetBackground(gcovOk, *wxGREEN);
-  stc->MarkerSetBackground(gcovKo, *wxRED);
-
-  stc->MarkerSetAlpha(gcovNa, alpha);
-  stc->MarkerSetAlpha(gcovOk, alpha);
-  stc->MarkerSetAlpha(gcovKo, 2 * alpha);
+  stc->MarkerDefine(cbGcovNaMarker,wxSCI_MARK_EMPTY, wxNullColour, *wxBLACK);
+  stc->MarkerDefine(cbGcovOkMarker,wxSCI_MARK_EMPTY, wxNullColour, *wxGREEN);
+  stc->MarkerDefine(cbGcovKoMarker,wxSCI_MARK_EMPTY, wxNullColour, *wxRED);
+  const int alpha = 12;
+  stc->MarkerSetAlpha(cbGcovNaMarker, alpha);
+  stc->MarkerSetAlpha(cbGcovOkMarker, alpha);
+  stc->MarkerSetAlpha(cbGcovKoMarker, 2 * alpha);
 
 }
 
@@ -229,11 +228,11 @@ void cbGcov::ClearCovData(cbEditor *ed)
     return;
   }
   // do not show margin
-  stc->SetMarginWidth(ourMargin, 0);
+  stc->SetMarginWidth(cbGcovMarginNumber, 0);
 
-  stc->MarkerDeleteAll(gcovNa);
-  stc->MarkerDeleteAll(gcovKo);
-  stc->MarkerDeleteAll(gcovOk);
+  stc->MarkerDeleteAll(cbGcovNaMarker);
+  stc->MarkerDeleteAll(cbGcovKoMarker);
+  stc->MarkerDeleteAll(cbGcovOkMarker);
 }
 
 /**
@@ -278,8 +277,8 @@ void cbGcov::ShowCovData(cbEditor *ed, cbProject* prj)
     return;
   }
 
-  stc->SetMarginWidth(ourMargin, 30);
-  stc->SetMarginType(ourMargin, wxSCI_MARGIN_TEXT);
+  stc->SetMarginWidth(cbGcovMarginNumber, 30);
+  stc->SetMarginType(cbGcovMarginNumber, wxSCI_MARGIN_TEXT);
   InitTextCtrlForCovData(stc);
 
   LineInfos_t LineInfos;
@@ -295,21 +294,21 @@ void cbGcov::ShowCovData(cbEditor *ed, cbProject* prj)
 
     if(calls == NoCode)
     {
-      stc->MarkerAdd(l, gcovNa);
+      stc->MarkerAdd(l, cbGcovNaMarker);
       stc->MarginSetText(l, _T("-"));
-      stc->MarginSetStyle(l, ourNaStyle);
+      stc->MarginSetStyle(l, cbGcovNaStyle);
     }
     else if(calls == 0)
     {
-      stc->MarkerAdd(l, gcovKo);
+      stc->MarkerAdd(l, cbGcovKoMarker);
       stc->MarginSetText(l, _T("0"));
-      stc->MarginSetStyle(l, ourKoStyle);
+      stc->MarginSetStyle(l, cbGcovKoStyle);
     }
     else
     {
-      stc->MarkerAdd(l, gcovOk);
+      stc->MarkerAdd(l, cbGcovOkMarker);
       stc->MarginSetText(l, wxString::Format(_T("%d"), calls));
-      stc->MarginSetStyle(l, ourOkStyle);
+      stc->MarginSetStyle(l, cbGcovOkStyle);
     }
   }
 }
