@@ -749,43 +749,45 @@ void cbGcov::StartGcov()
  */
 void cbGcov::StartGcovParallel()
 {
-  if(m_pProcesses.size() >= m_ParallelProcessCount)
-  {
-    return;
-  }
-
-  wxString curDir = wxGetCwd();
-  wxSetWorkingDirectory(m_JobsWorkingdir);
-
-  while(m_pProcesses.size() < m_ParallelProcessCount)
-  {
-    if(!m_Cmds.size())
+    if(m_pProcesses.size() >= m_ParallelProcessCount)
     {
-      break;
+        return;
     }
-    wxString cmd = m_Cmds[0];
-    m_Cmds.RemoveAt(0);
 
-    GcovProcess* process = new GcovProcess(this);
-    int pid = 0;
-    if(!wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_MAKE_GROUP_LEADER, process))
-    {
-      Log(_("Error calling gcov"));
-      return; // if not returning here, then take care of infinite loop not taking place
-    }
-    else
-    {
-      Log(cmd);
-      while(m_Output[pid] != 0 || m_pProcesses[pid] != 0)
-      {
-        pid++;
-      }
-      m_pProcesses[pid] = process;
-      process->SetId(pid);
-    }
-  }
+    wxString curDir = wxGetCwd();
+    wxSetWorkingDirectory(m_JobsWorkingdir);
 
-  wxSetWorkingDirectory(curDir);
+    while(m_pProcesses.size() < m_ParallelProcessCount)
+    {
+        if(!m_Cmds.size())
+        {
+            break;
+        }
+        wxString cmd = m_Cmds[0];
+        m_Cmds.RemoveAt(0);
+
+        GcovProcess* process = new GcovProcess(this);
+        int pid = wxExecute(cmd, wxEXEC_ASYNC | wxEXEC_MAKE_GROUP_LEADER, process);
+        if(pid == 0)
+        {
+            Log(_("Error calling gcov"));
+            return; // if not returning here, then take care of infinite loop not taking place
+        }
+        else
+        {
+            Log(cmd);
+            if (m_pProcesses.find(pid) != m_pProcesses.end() || m_Output.find(pid) != m_Output.end())
+            {
+                // pid already used by us?
+            }
+
+            m_pProcesses[pid] = process;
+            m_Output[pid] = wxArrayString();
+            process->SetId(pid);
+        }
+    }
+
+    wxSetWorkingDirectory(curDir);
 }
 
 /**

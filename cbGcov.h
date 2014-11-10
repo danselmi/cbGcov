@@ -139,9 +139,9 @@ protected:
   virtual void OnRelease(bool appShutDown);
 
 private:
-  typedef std::map<unsigned int, int > LineInfos_t;         /**< line#, execution count */
-  typedef std::map<unsigned int, wxArrayString > Output_t;  /**< wxProcessEvent::GetPid(), Log of process output */
-  typedef std::map<int, GcovProcess* > GcovProcesses_t;     /**< wxProcessEvent::GetPid(), GcovProcess* */
+  typedef std::map<unsigned int, int> LineInfos_t;         /**< line#, execution count */
+  typedef std::map<int, wxArrayString> Output_t;           /**< wxProcessEvent::GetPid(), Log of process output */
+  typedef std::map<int, GcovProcess*> GcovProcesses_t;     /**< wxProcessEvent::GetPid(), GcovProcess* */
 
   unsigned int m_LocalCodeLines;          /**< lines of code per file */
   unsigned int m_LocalCodeLinesCalled;    /**< lines of executed code per file */
