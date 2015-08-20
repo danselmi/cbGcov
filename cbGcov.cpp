@@ -7,6 +7,7 @@
 #include <cbproject.h>
 #include <editormanager.h>
 #include <configmanager.h>
+#include <cbcolourmanager.h>
 
 #include <wx/ffile.h>
 #include <wx/tokenzr.h>
@@ -85,6 +86,14 @@ void cbGcov::OnAttach()
   // You should check for it in other functions, because if it
   // is FALSE, it means that the application did *not* "load"
   // (see: does not need) this plugin...
+
+    ColourManager* cm = Manager::Get()->GetColourManager();
+    if(cm)
+    {
+      cm->RegisterColour(_("cbGcov"), _("no executable code"), wxT("cbgcov_not_executable"), *wxBLACK );
+      cm->RegisterColour(_("cbGcov"), _("never executed"), wxT("cbgcov_not_executed"), *wxRED );
+      cm->RegisterColour(_("cbGcov"), _("executed at least once"), wxT("cbgcov_executed"), *wxGREEN );
+    }
 
 //    Connect(idDoShowGcov,        wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(cbGcov::OnDoShowGcov));
 //    Connect(idDoShowGcov,        wxEVT_UPDATE_UI,             wxUpdateUIEventHandler(cbGcov::OnUpdateShowGcov));
@@ -196,18 +205,18 @@ void cbGcov::InitTextCtrlForCovData(cbStyledTextCtrl *stc)
     return;
   }
   // extra margin with coverage numbers per line
-  stc->StyleSetForeground(cbGcovNaStyle, *wxBLACK);
-  stc->StyleSetForeground(cbGcovOkStyle, *wxGREEN);
-  stc->StyleSetForeground(cbGcovKoStyle, *wxRED);
+  stc->StyleSetForeground(cbGcovNaStyle, Manager::Get()->GetColourManager()->GetColour(wxT("cbgcov_not_executable")));
+  stc->StyleSetForeground(cbGcovOkStyle, Manager::Get()->GetColourManager()->GetColour(wxT("cbgcov_executed")));
+  stc->StyleSetForeground(cbGcovKoStyle, Manager::Get()->GetColourManager()->GetColour(wxT("cbgcov_not_executed")));
 
   stc->StyleSetBackground(cbGcovNaStyle, stc->StyleGetBackground(wxSCI_STYLE_LINENUMBER));
   stc->StyleSetBackground(cbGcovOkStyle, stc->StyleGetBackground(wxSCI_STYLE_LINENUMBER));
   stc->StyleSetBackground(cbGcovKoStyle, stc->StyleGetBackground(wxSCI_STYLE_LINENUMBER));
 
   // some color for the line:
-  stc->MarkerDefine(cbGcovNaMarker,wxSCI_MARK_EMPTY, wxNullColour, *wxBLACK);
-  stc->MarkerDefine(cbGcovOkMarker,wxSCI_MARK_EMPTY, wxNullColour, *wxGREEN);
-  stc->MarkerDefine(cbGcovKoMarker,wxSCI_MARK_EMPTY, wxNullColour, *wxRED);
+  stc->MarkerDefine(cbGcovNaMarker,wxSCI_MARK_EMPTY, wxNullColour, Manager::Get()->GetColourManager()->GetColour(wxT("cbgcov_not_executable")));
+  stc->MarkerDefine(cbGcovOkMarker,wxSCI_MARK_EMPTY, wxNullColour, Manager::Get()->GetColourManager()->GetColour(wxT("cbgcov_executed")));
+  stc->MarkerDefine(cbGcovKoMarker,wxSCI_MARK_EMPTY, wxNullColour, Manager::Get()->GetColourManager()->GetColour(wxT("cbgcov_not_executed")));
   const int alpha = 12;
   stc->MarkerSetAlpha(cbGcovNaMarker, alpha);
   stc->MarkerSetAlpha(cbGcovOkMarker, alpha);
