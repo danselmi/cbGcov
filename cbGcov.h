@@ -163,6 +163,7 @@ private:
   void Log(wxString str);
   void InitTextCtrlForCovData(cbStyledTextCtrl *stc);
   void ShowCovData(cbEditor *ed, cbProject* prj = 0);
+  void ShowCovData(cbEditor *ed, LineInfos_t &LineInfos);
   void ClearCovData(cbEditor *ed);
   void UpdateEditors(cbProject*);
 

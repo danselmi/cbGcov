@@ -51,7 +51,7 @@ BEGIN_EVENT_TABLE(cbGcov, cbPlugin)
 END_EVENT_TABLE()
 
 /**
- * @brief Default constructor. Checks for resouse file, initializes internal state.
+ * @brief Default constructor. Checks for resource file, initializes internal state.
  */
 cbGcov::cbGcov()
 //:m_pProcess(NULL)
@@ -243,10 +243,9 @@ void cbGcov::ClearCovData(cbEditor *ed)
  */
 void cbGcov::ShowCovData(cbEditor *ed, cbProject* prj)
 {
-  cbStyledTextCtrl* stc;
   wxString jobsWorkingdir;
 
-  if(!ed || (stc = ed->GetControl()) == 0)
+  if(!ed)
   {
     return;
   }
@@ -260,8 +259,6 @@ void cbGcov::ShowCovData(cbEditor *ed, cbProject* prj)
   {
     jobsWorkingdir = prj->GetBasePath();
   }
-
-  ClearCovData(ed);
 
   wxFileName basefilename(ed->GetFilename());
   wxFileName gcovfilename(jobsWorkingdir + basefilename.GetFullName() + _T(".gcov"));
@@ -277,12 +274,25 @@ void cbGcov::ShowCovData(cbEditor *ed, cbProject* prj)
     return;
   }
 
-  stc->SetMarginWidth(cbGcovMarginNumber, 30);
-  stc->SetMarginType(cbGcovMarginNumber, wxSCI_MARGIN_TEXT);
-  InitTextCtrlForCovData(stc);
-
   LineInfos_t LineInfos;
   GetLineInfos(gcovfilename, LineInfos);
+
+  ShowCovData(ed, LineInfos);
+}
+
+void cbGcov::ShowCovData(cbEditor *ed, LineInfos_t &LineInfos)
+{
+  cbStyledTextCtrl* stc;
+
+  if(!ed || (stc = ed->GetControl()) == 0)
+  {
+    return;
+  }
+
+  ClearCovData(ed);
+  stc->SetMarginWidth(cbGcovMarginNumber, 60);
+  stc->SetMarginType(cbGcovMarginNumber, wxSCI_MARGIN_TEXT);
+  InitTextCtrlForCovData(stc);
 
   for(unsigned int l = 0 ; l < stc->GetLineCount() ; l++)
   {
@@ -334,10 +344,13 @@ void cbGcov::GetStats(cbProject * prj)
   for (FilesList::iterator it = prj->GetFilesList().begin(); it != prj->GetFilesList().end(); ++it)
   {
     ProjectFile* prjfile = *it;
-    if(prjfile && prjfile->compile)
+    // also check header files and other non compiled source files
+    //(inline code in class definition or template implementations)
+    if(prjfile)
     {
-      wxFileName basefilename(prjfile->file.GetFullPath());
-      wxFileName gcovfilename(jobsWorkingdir + basefilename.GetFullName() + _T(".gcov"));
+      Log(_("GcovStats"));
+      const wxFileName basefilename(prjfile->file.GetFullPath());
+      const wxFileName gcovfilename(jobsWorkingdir + basefilename.GetFullName() + _T(".gcov"));
       if(! gcovfilename.FileExists())
       {
         Log(basefilename.GetFullName() + _(": No coverage data (*.gcov) found. Please run gcov for source file"));
@@ -352,6 +365,13 @@ void cbGcov::GetStats(cbProject * prj)
       LineInfos_t LineInfos;
       m_LocalCodeLines = m_LocalCodeLinesCalled = 0;
       GetLineInfos(gcovfilename, LineInfos);
+
+      if(Manager::Get()->GetEditorManager() && Manager::Get()->GetEditorManager()->IsOpen(prjfile->file.GetFullPath()))
+      {
+        cbEditor *ed = Manager::Get()->GetEditorManager()->GetBuiltinEditor(prjfile->file.GetFullPath());
+        if(ed)
+            ShowCovData(ed, LineInfos);
+      }
 
       file_m_Stats.Filename = basefilename.GetFullName();
       file_m_Stats.codeLines = m_LocalCodeLines;
@@ -738,7 +758,7 @@ void cbGcov::StartGcov()
     GetStats(m_Prj);
     cbProject* prj = m_Prj;
     WorkspaceNextProject(); // Process next project in a workspace, if one is available
-    UpdateEditors(prj);     // if next project is processed by WorkspaceNextProject() then UpdateEditors() is done in parallel
+    //UpdateEditors(prj);     // if next project is processed by WorkspaceNextProject() then UpdateEditors() is done in parallel
 
   }
 }
@@ -800,7 +820,7 @@ void cbGcov::UpdateEditors(cbProject* prj)
   for (FilesList::iterator it = prj->GetFilesList().begin(); it != prj->GetFilesList().end(); ++it)
   {
     ProjectFile* prjfile = *it;
-    if(prjfile && prjfile->compile)
+    if(prjfile)
     {
       wxString srcfile = prjfile->file.GetFullPath();
       for(unsigned int i = 0 ; i < m_JobsFileList.GetCount() ; ++i)
