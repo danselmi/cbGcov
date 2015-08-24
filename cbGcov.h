@@ -182,8 +182,13 @@ private:
   void StartGcovParallel();
   void CleanProject(cbProject* prj);
 
+  void OnAddInstrumentationToProject(wxCommandEvent &event);
+  void OnUpdateAddInstrumentationToProject(wxUpdateUIEvent& event);
   void OnDoGcov(wxCommandEvent &event);
+  void OnUpdateGcov(wxUpdateUIEvent& event);
   void OnDoGcovWorkspace(wxCommandEvent &event);
+  void OnUpdateGcovWorkspace(wxUpdateUIEvent& event);
+
   void OnEditorOpen(CodeBlocksEvent &event);
   void OnEditorModified(CodeBlocksEvent &event);
   void OnCleanProject(CodeBlocksEvent &event);

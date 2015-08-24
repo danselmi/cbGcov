@@ -29,9 +29,10 @@ namespace
 {
   PluginRegistrant<cbGcov> reg(_T("cbGcov"));
 
-  const int idDoShowGcov                 = wxNewId();
-  const int idDoGcov                     = wxNewId();
-  const int idDoGcovAnalyze              = wxNewId();
+  const int idDoShowGcov                  = wxNewId();
+  const int idDoGcov                      = wxNewId();
+  const int idDoGcovAnalyze               = wxNewId();
+  const int idAddInstrumentationToProject = wxNewId();
 
 }
 
@@ -87,20 +88,21 @@ void cbGcov::OnAttach()
   // is FALSE, it means that the application did *not* "load"
   // (see: does not need) this plugin...
 
-    ColourManager* cm = Manager::Get()->GetColourManager();
-    if(cm)
-    {
-      cm->RegisterColour(_("cbGcov"), _("no executable code"), wxT("cbgcov_not_executable"), *wxBLACK );
-      cm->RegisterColour(_("cbGcov"), _("never executed"), wxT("cbgcov_not_executed"), *wxRED );
-      cm->RegisterColour(_("cbGcov"), _("executed at least once"), wxT("cbgcov_executed"), *wxGREEN );
-    }
+  ColourManager* cm = Manager::Get()->GetColourManager();
+  if(cm)
+  {
+    cm->RegisterColour(_("cbGcov"), _("no executable code"), wxT("cbgcov_not_executable"), *wxBLACK );
+    cm->RegisterColour(_("cbGcov"), _("never executed"), wxT("cbgcov_not_executed"), *wxRED );
+    cm->RegisterColour(_("cbGcov"), _("executed at least once"), wxT("cbgcov_executed"), *wxGREEN );
+  }
 
-//    Connect(idDoShowGcov,        wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(cbGcov::OnDoShowGcov));
-//    Connect(idDoShowGcov,        wxEVT_UPDATE_UI,             wxUpdateUIEventHandler(cbGcov::OnUpdateShowGcov));
+  Connect(idAddInstrumentationToProject, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(cbGcov::OnAddInstrumentationToProject));
+  Connect(idAddInstrumentationToProject, wxEVT_UPDATE_UI,             wxUpdateUIEventHandler(cbGcov::OnUpdateAddInstrumentationToProject));
+  Connect(idDoGcov,                      wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(cbGcov::OnDoGcov));
+  Connect(idDoGcov,                      wxEVT_UPDATE_UI,             wxUpdateUIEventHandler(cbGcov::OnUpdateGcov));
+  Connect(idDoGcovAnalyze,               wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(cbGcov::OnDoGcovWorkspace));
+  Connect(idDoGcovAnalyze,               wxEVT_UPDATE_UI,             wxUpdateUIEventHandler(cbGcov::OnUpdateGcovWorkspace));
 
-  Connect(idDoGcov,            wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(cbGcov::OnDoGcov));
-  //Connect(idDoGcov,            wxEVT_UPDATE_UI,             wxUpdateUIEventHandler(cbGcov::OnUpdateGcov));
-  Connect(idDoGcovAnalyze,     wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(cbGcov::OnDoGcovWorkspace));
   Connect(wxEVT_END_PROCESS,   wxProcessEventHandler(cbGcov::OnGcovReturned), NULL, this);
   Connect(wxEVT_IDLE,          wxIdleEventHandler(cbGcov::OnIdle), NULL, this);
 
@@ -123,12 +125,14 @@ void cbGcov::OnRelease(bool appShutDown)
   // NOTE: after this function, the inherited member variable
   // m_IsAttached will be FALSE...
 
-//    Disconnect(idDoShowGcov,        wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(cbGcov::OnDoShowGcov));
-//    Disconnect(idDoShowGcov,        wxEVT_UPDATE_UI,             wxUpdateUIEventHandler(cbGcov::OnUpdateShowGcov));
 
-  Disconnect(idDoGcov,            wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(cbGcov::OnDoGcov));
-  //Disconnect(idDoGcov,            wxEVT_UPDATE_UI,             wxUpdateUIEventHandler(cbGcov::OnUpdateGcov));
-  Disconnect(idDoGcovAnalyze,     wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(cbGcov::OnDoGcovWorkspace));
+  Disconnect(idAddInstrumentationToProject, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(cbGcov::OnAddInstrumentationToProject));
+  Disconnect(idAddInstrumentationToProject, wxEVT_UPDATE_UI,             wxUpdateUIEventHandler(cbGcov::OnUpdateAddInstrumentationToProject));
+  Disconnect(idDoGcov,                      wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(cbGcov::OnDoGcov));
+  Disconnect(idDoGcov,                      wxEVT_UPDATE_UI,             wxUpdateUIEventHandler(cbGcov::OnUpdateGcov));
+  Disconnect(idDoGcovAnalyze,               wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(cbGcov::OnDoGcovWorkspace));
+  Disconnect(idDoGcovAnalyze,               wxEVT_UPDATE_UI,             wxUpdateUIEventHandler(cbGcov::OnUpdateGcovWorkspace));
+
   Disconnect(wxEVT_END_PROCESS,   wxProcessEventHandler(cbGcov::OnGcovReturned), NULL, this);
   Disconnect(wxEVT_IDLE,          wxIdleEventHandler(cbGcov::OnIdle), NULL, this);
 }
@@ -163,8 +167,8 @@ void cbGcov::BuildMenu(wxMenuBar* menuBar)
     //prjmenu->Append(idDoShowGcov, _T("Show Coverage Data"));
     prjmenu->Append(idDoGcov, _T("Run Gcov on project"));
     prjmenu->Append(idDoGcovAnalyze, _T("Run Gcov on workspace"));
+    prjmenu->Append(idAddInstrumentationToProject, _T("Add Gcov instrumentation"), _T("Add compiler/linker option to add gcov coverage instrumentation to project."));
   }
-
 }
 
 /**
@@ -986,3 +990,79 @@ void cbGcov::Initialize()
   m_CodeLinesCalled = 0;
   m_TimeSpan = wxDateTime::UNow();
 }
+
+void cbGcov::OnAddInstrumentationToProject(wxCommandEvent &event)
+{
+  cbProject * prj = Manager::Get()->GetProjectManager()->GetActiveProject();
+  if(!prj) return;
+
+  bool optionsChanged = false;
+
+  const wxArrayString &compilerOptions = prj->GetCompilerOptions();
+  bool hasProfileArcs = false;
+  bool hasTestCoverage = false;
+
+  for(size_t i = 0 ; i < compilerOptions.GetCount() ; ++i)
+  {
+    const wxString option = compilerOptions[i];
+    if( option == _T("-fprofile-arcs"))
+    {
+        hasProfileArcs = true;
+        continue;
+    }
+    if( option == _T("-ftest-coverage"))
+    {
+        hasTestCoverage = true;
+        continue;
+    }
+  }
+  if(!hasProfileArcs)
+  {
+    optionsChanged = true;
+    prj->AddCompilerOption(_T("-fprofile-arcs"));
+  }
+  if(!hasTestCoverage)
+  {
+    optionsChanged = true;
+    prj->AddCompilerOption(_T("-ftest-coverage"));
+  }
+
+  const wxArrayString &libs = prj->GetLinkLibs();
+  bool needToAddgCovLib = true;
+  for(size_t i = 0 ; i < libs.GetCount() ; ++i)
+  {
+      const wxString &lib = libs[i];
+      if ( lib == _T("gcov") || lib == _T("libgcov") )
+      {
+        needToAddgCovLib = false;
+        break;
+      }
+  }
+  if(needToAddgCovLib)
+  {
+    optionsChanged = true;
+    prj->AddLinkLib(_T("gcov"));
+  }
+
+  if(optionsChanged)
+    Log( _("Project options changed. Please rebuild your project"));
+}
+
+void cbGcov::OnUpdateAddInstrumentationToProject(wxUpdateUIEvent& event)
+{
+  cbProject * prj = Manager::Get()->GetProjectManager()->GetActiveProject();
+  event.Enable(prj);
+}
+
+void cbGcov::OnUpdateGcov(wxUpdateUIEvent& event)
+{
+  cbProject * prj = Manager::Get()->GetProjectManager()->GetActiveProject();
+  event.Enable((prj) && (m_pProcesses.size() == 0));
+}
+
+void cbGcov::OnUpdateGcovWorkspace(wxUpdateUIEvent& event)
+{
+  ProjectsArray* prjs = Manager::Get()->GetProjectManager()->GetProjects();
+  event.Enable((m_pProcesses.size() == 0) && (prjs) && (prjs->GetCount()));
+}
+
