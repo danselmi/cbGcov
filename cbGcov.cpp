@@ -1044,6 +1044,24 @@ void cbGcov::OnAddInstrumentationToProject(wxCommandEvent &event)
     prj->AddLinkLib(_T("gcov"));
   }
 
+  const wxArrayString &lnkOptions = prj->GetLinkerOptions();
+  bool needToAddCoverageOption = true;
+  for(size_t i = 0 ; i < lnkOptions.GetCount() ; ++i)
+  {
+      const wxString &option = lnkOptions[i];
+      if ( option == _T("-coverage") )
+      {
+        needToAddCoverageOption = false;
+        break;
+      }
+  }
+  if(needToAddCoverageOption)
+  {
+    optionsChanged = true;
+    prj->AddLinkerOption(_T("-coverage"));
+  }
+
+
   if(optionsChanged)
     Log( _("Project options changed. Please rebuild your project"));
 }
