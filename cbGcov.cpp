@@ -743,7 +743,7 @@ void cbGcov::GcovProject(cbProject* prj)
       m_JobsFileList.Add(srcfile);
       QuoteStringIfNeeded(srcfile);
 
-      wxString cmd = GetGcovBinaryName() + _T(" -abf") +
+      wxString cmd = GetGcovBinaryName() + _T(" -abfm") +
                      (objdir.IsEmpty() ? _T(" ") : _T(" -o ") + objdir + _T(" ")) +
                      srcfile;
 
