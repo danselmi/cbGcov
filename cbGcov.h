@@ -139,7 +139,11 @@ protected:
   virtual void OnRelease(bool appShutDown);
 
 private:
-  typedef std::map<unsigned int, int> LineInfos_t;         /**< line#, execution count */
+  struct LineInfo {int executionCount;
+                   wxArrayString functionCalls;
+                   wxArrayString branchInfos;
+                   wxArrayString callInfos;};
+  typedef std::map<unsigned int, LineInfo> LineInfos;
   typedef std::map<int, wxArrayString> Output_t;           /**< wxProcessEvent::GetPid(), Log of process output */
   typedef std::map<int, GcovProcess*> GcovProcesses_t;     /**< wxProcessEvent::GetPid(), GcovProcess* */
 
@@ -163,12 +167,12 @@ private:
   void Log(wxString str);
   void InitTextCtrlForCovData(cbStyledTextCtrl *stc);
   void ShowCovData(cbEditor *ed, cbProject* prj = 0);
-  void ShowCovData(cbEditor *ed, LineInfos_t &LineInfos);
+  void ShowCovData(cbEditor *ed, LineInfos &lineInfos);
   void ClearCovData(cbEditor *ed);
   void UpdateEditors(cbProject*);
 
-  void GetLineInfos(wxFileName filename, LineInfos_t &LineInfos);
-  void AddInfoFromLine(wxString &line, LineInfos_t &LineInfos);
+  void GetLineInfos(wxFileName filename, LineInfos &lineInfos);
+  void AddInfoFromLine(wxString &line, LineInfos &lineInfos);
 
   void GcovProject(cbProject*);
   void GetStats(cbProject*);

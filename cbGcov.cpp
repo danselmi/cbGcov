@@ -226,6 +226,7 @@ void cbGcov::InitTextCtrlForCovData(cbStyledTextCtrl *stc)
   stc->MarkerSetAlpha(cbGcovOkMarker, alpha);
   stc->MarkerSetAlpha(cbGcovKoMarker, 2 * alpha);
 
+  stc->AnnotationSetVisible(wxSCI_ANNOTATION_BOXED);
 }
 
 /**
@@ -246,6 +247,8 @@ void cbGcov::ClearCovData(cbEditor *ed)
   stc->MarkerDeleteAll(cbGcovNaMarker);
   stc->MarkerDeleteAll(cbGcovKoMarker);
   stc->MarkerDeleteAll(cbGcovOkMarker);
+
+  stc->AnnotationClearAll();
 }
 
 /**
@@ -287,13 +290,13 @@ void cbGcov::ShowCovData(cbEditor *ed, cbProject* prj)
     return;
   }
 
-  LineInfos_t LineInfos;
-  GetLineInfos(gcovfilename, LineInfos);
+  LineInfos lineInfos;
+  GetLineInfos(gcovfilename, lineInfos);
 
-  ShowCovData(ed, LineInfos);
+  ShowCovData(ed, lineInfos);
 }
 
-void cbGcov::ShowCovData(cbEditor *ed, LineInfos_t &LineInfos)
+void cbGcov::ShowCovData(cbEditor *ed, LineInfos &lineInfos)
 {
   cbStyledTextCtrl* stc;
 
@@ -310,10 +313,10 @@ void cbGcov::ShowCovData(cbEditor *ed, LineInfos_t &LineInfos)
   for(unsigned int l = 0 ; l < stc->GetLineCount() ; l++)
   {
     int calls = NoCode;
-    std::map<unsigned int, int>::iterator it = LineInfos.find(l + 1);
-    if(it == LineInfos.end())
+    LineInfos::iterator it = lineInfos.find(l + 1);
+    if(it == lineInfos.end())
       continue;
-    calls = it->second;
+    calls = it->second.executionCount;
 
     if(calls == NoCode)
     {
@@ -333,6 +336,40 @@ void cbGcov::ShowCovData(cbEditor *ed, LineInfos_t &LineInfos)
       stc->MarginSetText(l, wxString::Format(_T("%d"), calls));
       stc->MarginSetStyle(l, cbGcovOkStyle);
     }
+
+    wxString annotationStr;
+
+    wxArrayString &functions = it->second.functionCalls;
+    if(functions.GetCount())
+    {
+      annotationStr = _T("Functions summary:\n    ") + functions[0];
+      for(size_t i = 1 ; i < functions.GetCount() ; ++i)
+        annotationStr += _T("\n    ") + functions[i];
+    }
+
+    wxArrayString &branches = it->second.branchInfos;
+    if(branches.GetCount())
+    {
+      if(!annotationStr.IsEmpty())
+        annotationStr += _T("\n");
+      annotationStr += _T("branches:\n    ") + branches[0];
+      for(size_t i = 1; i < branches.GetCount() ; ++i)
+        annotationStr +=_T("\n    ") + branches[i];
+    }
+
+    wxArrayString &callInfos = it->second.callInfos;
+    if(callInfos.GetCount())
+    {
+      if(!annotationStr.IsEmpty())
+        annotationStr += _T("\n");
+      annotationStr += _T("call infos:\n    ") + callInfos[0];
+      for(size_t i = 1; i < callInfos.GetCount() ; ++i)
+        annotationStr +=_T("\n    ") + callInfos[i];
+    }
+
+    if(!annotationStr.IsEmpty())
+      stc->AnnotationSetText(l, annotationStr);
+
   }
 }
 
@@ -375,15 +412,15 @@ void cbGcov::GetStats(cbProject * prj)
         continue;
       }
 
-      LineInfos_t LineInfos;
+      LineInfos lineInfos;
       m_LocalCodeLines = m_LocalCodeLinesCalled = 0;
-      GetLineInfos(gcovfilename, LineInfos);
+      GetLineInfos(gcovfilename, lineInfos);
 
       if(Manager::Get()->GetEditorManager() && Manager::Get()->GetEditorManager()->IsOpen(prjfile->file.GetFullPath()))
       {
         cbEditor *ed = Manager::Get()->GetEditorManager()->GetBuiltinEditor(prjfile->file.GetFullPath());
         if(ed)
-            ShowCovData(ed, LineInfos);
+            ShowCovData(ed, lineInfos);
       }
 
       file_m_Stats.Filename = basefilename.GetFullName();
@@ -469,9 +506,9 @@ void cbGcov::GetStats(cbProject * prj)
  * @param filename - .gcov full file name/path
  * @param LineInfos - internal structure to hold per file gcov info
  */
-void cbGcov::GetLineInfos(wxFileName filename, LineInfos_t &LineInfos)
+void cbGcov::GetLineInfos(wxFileName filename, LineInfos &lineInfos)
 {
-  LineInfos.clear();
+  lineInfos.clear();
 
   wxFFile file(filename.GetFullPath());
   if(!file.IsOpened())
@@ -496,7 +533,7 @@ void cbGcov::GetLineInfos(wxFileName filename, LineInfos_t &LineInfos)
   while(tkz.HasMoreTokens())
   {
     str = tkz.GetNextToken();
-    AddInfoFromLine(str, LineInfos);
+    AddInfoFromLine(str, lineInfos);
     lines++;
   }
 
@@ -510,12 +547,14 @@ void cbGcov::GetLineInfos(wxFileName filename, LineInfos_t &LineInfos)
  * @param line - a single line from .gcov file
  * @param LineInfos - internal structure to hold per file gcov info
  */
-void cbGcov::AddInfoFromLine(wxString &line, LineInfos_t &LineInfos)
+void cbGcov::AddInfoFromLine(wxString &line, LineInfos &lineInfos)
 {
   // "\s*\\d+:\\s*\\d+:"
   // "\\s*-:\\s*\\d+:"   containing no code
   // "\s*#{5}:\s*\d+:"   never executed
   line.Trim(false);
+
+  static unsigned int lastDetectedLine = 0;
 
   if(line[0] == _T('-') && line[1] == _T(':'))
   {
@@ -523,7 +562,8 @@ void cbGcov::AddInfoFromLine(wxString &line, LineInfos_t &LineInfos)
     line.Trim(false);
     unsigned long l = 0;
     line.ToULong(&l, 10);
-    LineInfos[(unsigned int)l] = NoCode;
+    lineInfos[(unsigned int)l].executionCount = NoCode;
+    lastDetectedLine = l;
   }
   else if(line.Mid(0, 6) == _T("#####:"))
   {
@@ -534,14 +574,29 @@ void cbGcov::AddInfoFromLine(wxString &line, LineInfos_t &LineInfos)
     if(!line.ToULong(&l))
       ;//return;
 
-    LineInfos[(unsigned int)l] = 0;
+    lineInfos[(unsigned int)l].executionCount = 0;
     m_LocalCodeLines++;
-
+    lastDetectedLine = l;
   }
   else if(line.Mid(0, 6) == _T("$$$$$:"))
   {
     //block
     return;
+  }
+  else if(line.StartsWith(_T("function")))
+  {
+    wxString str = line.Mid(8).Trim(false);
+    lineInfos[lastDetectedLine].functionCalls.Add(str);
+  }
+  else if(line.StartsWith(_T("branch")))
+  {
+    wxString str = line.Mid(6).Trim(false);
+    lineInfos[lastDetectedLine].branchInfos.Add(str);
+  }
+  else if(line.StartsWith(_T("call")))
+  {
+    wxString str = line.Mid(4).Trim(false);
+    lineInfos[lastDetectedLine].callInfos.Add(str);
   }
   else
   {
@@ -556,9 +611,10 @@ void cbGcov::AddInfoFromLine(wxString &line, LineInfos_t &LineInfos)
     unsigned long l = 0;
     if(!line.ToULong(&l, 10))
       ;//return;
-    LineInfos[(unsigned int)l] = calls;
+    lineInfos[(unsigned int)l].executionCount = calls;
     m_LocalCodeLinesCalled++;
     m_LocalCodeLines++;
+    lastDetectedLine = l;
   }
 }
 
@@ -734,7 +790,6 @@ void cbGcov::GcovProject(cbProject* prj)
     ProjectFile* prjfile = *it;
     if(prjfile && prjfile->compile)
     {
-
       wxFileName objname(objOutput + sep + prjfile->GetObjName());
       wxString objdir = objname.GetPath();
 
@@ -743,7 +798,14 @@ void cbGcov::GcovProject(cbProject* prj)
       m_JobsFileList.Add(srcfile);
       QuoteStringIfNeeded(srcfile);
 
-      wxString cmd = GetGcovBinaryName() + _T(" -abfm") +
+      const bool demangleFunctionNames = true;
+      const bool functionSummaries = true;
+      const bool branchProbabilities = true;
+
+      wxString cmd = GetGcovBinaryName() + _T(" -a") +
+                     wxString(functionSummaries ? _T("f") : _T("")) +
+                     wxString(branchProbabilities ? _T("b") : _T("")) +
+                     wxString(demangleFunctionNames ? _T("m") : _T("")) +
                      (objdir.IsEmpty() ? _T(" ") : _T(" -o ") + objdir + _T(" ")) +
                      srcfile;
 
