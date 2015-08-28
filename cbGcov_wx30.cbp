@@ -63,7 +63,10 @@
 		<Unit filename="SummaryDialog.h" />
 		<Unit filename="cbGcov.cpp" />
 		<Unit filename="cbGcov.h" />
+		<Unit filename="cbGcovConfigPanel.cpp" />
+		<Unit filename="cbGcovConfigPanel.h" />
 		<Unit filename="manifest.xml" />
+		<Unit filename="wxsmith/cbGcovConfigPanel.wxs" />
 		<Extensions>
 			<code_completion />
 			<envvars />
@@ -83,6 +86,7 @@
 					<wxDialog wxs="wxsmith/SummaryDialog.wxs" src="SummaryDialog.cpp" hdr="SummaryDialog.h" fwddecl="0" i18n="1" name="SummaryDialog" language="CPP" />
 					<wxDialog wxs="wxsmith/CallListDialog.wxs" src="CallListDialog.cpp" hdr="CallListDialog.h" fwddecl="0" i18n="1" name="CallListDialog" language="CPP" />
 					<wxDialog wxs="wxsmith/CallButterflyDialog.wxs" src="CallButterflyDialog.cpp" hdr="CallButterflyDialog.h" fwddecl="0" i18n="1" name="CallButterflyDialog" language="CPP" />
+					<wxPanel wxs="wxsmith/cbGcovConfigPanel.wxs" src="cbGcovConfigPanel.cpp" hdr="cbGcovConfigPanel.h" fwddecl="1" i18n="1" name="cbGcovConfigPanel" language="CPP" />
 				</resources>
 			</wxsmith>
 		</Extensions>
