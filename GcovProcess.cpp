@@ -27,7 +27,7 @@ GcovProcess::~GcovProcess()
  */
 void GcovProcess::SetId(unsigned int id)
 {
-  m_Id = id;
+    m_Id = id;
 }
 
 /**
