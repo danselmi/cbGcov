@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<wxsmith>
+	<object class="wxPanel" name="cbGcovConfigPanel">
+		<object class="wxBoxSizer" variable="BoxSizer1" member="no">
+			<orient>wxVERTICAL</orient>
+			<object class="sizeritem">
+				<object class="wxBoxSizer" variable="BoxSizer2" member="no">
+					<orient>wxVERTICAL</orient>
+					<object class="sizeritem">
+						<object class="wxCheckBox" name="ID_CHECKBOX_DEMANGLE" variable="DemangleNamesCheckBox" member="yes">
+							<label>Display demangled function names</label>
+							<tooltip>Display demangled function names in output.</tooltip>
+						</object>
+						<flag>wxALL</flag>
+						<border>5</border>
+						<option>1</option>
+					</object>
+					<object class="sizeritem">
+						<object class="wxCheckBox" name="ID_CHECKBOX_FUNCTIONSUMMARIES" variable="FunctionSummariesCheckBox" member="yes">
+							<label>Create funcion summaries</label>
+							<tooltip>Output summaries for each function in addition to the file level summary.</tooltip>
+						</object>
+						<flag>wxALL</flag>
+						<border>5</border>
+						<option>1</option>
+					</object>
+					<object class="sizeritem">
+						<object class="wxCheckBox" name="ID_CHECKBOX_BRANCHPROBABILITIES" variable="BranchProbabilitiesCheckBox" member="yes">
+							<label>Create branch frequencies</label>
+							<tooltip>Write branch frequencies to the output file, and write branch summary info to the standard output</tooltip>
+						</object>
+						<flag>wxALL</flag>
+						<border>5</border>
+						<option>1</option>
+					</object>
+				</object>
+				<flag>wxALL|wxALIGN_CENTER_HORIZONTAL</flag>
+				<border>5</border>
+				<option>1</option>
+			</object>
+			<object class="spacer">
+				<flag>wxALL|wxEXPAND</flag>
+				<border>5</border>
+				<option>1</option>
+			</object>
+		</object>
+	</object>
+</wxsmith>

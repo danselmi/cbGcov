@@ -18,10 +18,12 @@
 #endif
 #include <map>
 
+#include <wx/process.h>
 #include <cbplugin.h> // for "class cbPlugin"
 
 class cbStyledTextCtrl;
 class GcovProcess;
+struct cbGcovConfig;
 
 const int NoCode = -1;
 
@@ -35,7 +37,7 @@ struct GcovStats
     int         codeLines;
     int         codeLinesCalled;
 };
-
+struct cbGcovConfig;
 /**
 * @brief Implements main functionality of the plugin.
 *
@@ -68,7 +70,7 @@ public:
       * @param parent The parent window.
       * @return A pointer to the plugin's cbConfigurationPanel. It is deleted by the caller.
       */
-    virtual cbConfigurationPanel* GetConfigurationPanel(wxWindow* parent){ return 0; }
+    virtual cbConfigurationPanel* GetConfigurationPanel(wxWindow* parent);
 
     /** Return plugin's configuration panel for projects.
       * The panel returned from this function will be added in the project's
@@ -200,9 +202,11 @@ private:
     void OnIdle(wxIdleEvent& event);
 
     DECLARE_EVENT_TABLE();
-
+    cbGcovConfig *config_;
 public:
     void OnProcessGeneratedOutputLine(const wxString &line, unsigned int id);
+
+    void UpdateConfig();
 
 };
 

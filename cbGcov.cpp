@@ -22,6 +22,7 @@
 
 #include "cbGcov.h"
 #include "GcovProcess.h"
+#include "cbGcovConfigPanel.h"
 
 // Register the plugin with Code::Blocks.
 // We are using an anonymous namespace so we don't litter the global one.
@@ -45,6 +46,12 @@ const int cbGcovNaStyle = 80;
 const int cbGcovOkStyle = 81;
 const int cbGcovKoStyle = 82;
 
+struct cbGcovConfig
+{
+    bool demangleNames;
+    bool outputFunctionSummaries;
+    bool branchProbabilities;
+};
 
 // events handling
 BEGIN_EVENT_TABLE(cbGcov, cbPlugin)
@@ -58,6 +65,7 @@ cbGcov::cbGcov()
 //:m_pProcess(NULL)
 //,JodDone(false)
 {
+    config_ = new cbGcovConfig;
     // Make sure our resources are available.
     // In the generated boilerplate code we have no resources but when
     // we add some, it will be nice that this code is in place already ;)
@@ -94,6 +102,7 @@ void cbGcov::OnAttach()
         cm->RegisterColour(_("cbGcov"), _("never executed"), wxT("cbgcov_not_executed"), *wxRED );
         cm->RegisterColour(_("cbGcov"), _("executed at least once"), wxT("cbgcov_executed"), *wxGREEN );
     }
+    UpdateConfig();
 
     Connect(idAddInstrumentationToProject, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(cbGcov::OnAddInstrumentationToProject));
     Connect(idAddInstrumentationToProject, wxEVT_UPDATE_UI,             wxUpdateUIEventHandler(cbGcov::OnUpdateAddInstrumentationToProject));
@@ -195,6 +204,14 @@ bool cbGcov::BuildToolBar(wxToolBar* toolBar)
     // return true if you add toolbar items
     return false;
 }
+
+
+cbConfigurationPanel* cbGcov::GetConfigurationPanel(wxWindow* parent)
+{
+    return new cbGcovConfigPanel(parent, this);
+}
+
+
 
 /**
  * @brief Initializes given styled text control.
@@ -797,15 +814,18 @@ void cbGcov::GcovProject(cbProject* prj)
             m_JobsFileList.Add(srcfile);
             QuoteStringIfNeeded(srcfile);
 
-            const bool demangleFunctionNames = false; // since gcc 4.9.0
-            const bool functionSummaries = true;
-            const bool branchProbabilities = true;
-
-            wxString cmd = GetGcovBinaryName() + _T(" -a") +
-                    wxString(functionSummaries ? _T("f") : _T("")) +
-                    wxString(branchProbabilities ? _T("b") : _T("")) +
-                    wxString(demangleFunctionNames ? _T("m") : _T("")) +
-                    (objdir.IsEmpty() ? _T(" ") : _T(" -o ") + objdir + _T(" ")) +
+            wxString cmd = GetGcovBinaryName() + _T(" -ac");
+            if(config_)
+            {
+             cmd += wxString(config_->outputFunctionSummaries ? _T("f") : _T("")) +
+                    wxString(config_->branchProbabilities ? _T("b") : _T("")) +
+                    wxString(config_->demangleNames ? _T("m") : _T(""));
+            }
+            else
+            {
+                cmd += wxString(_T("fb"));
+            }
+            cmd += (objdir.IsEmpty() ? _T(" ") : _T(" -o ") + objdir + _T(" ")) +
                     srcfile;
 
             m_Cmds.Add(cmd);
@@ -1145,3 +1165,12 @@ void cbGcov::OnUpdateGcovWorkspace(wxUpdateUIEvent& event)
     event.Enable((m_pProcesses.size() == 0) && (prjs) && (prjs->GetCount()));
 }
 
+void cbGcov::UpdateConfig()
+{
+    if(!config_) return;
+
+    ConfigManager* cfg = Manager::Get()->GetConfigManager(_T("cbGcov"));
+    config_->demangleNames = cfg->ReadBool(_T("/DemangleNames"), true);
+    config_->outputFunctionSummaries = cfg->ReadBool(_T("/OutputFunctionSummaries"), true);
+    config_->branchProbabilities = cfg->ReadBool(_T("/BranchProbabilities"), true);
+}
