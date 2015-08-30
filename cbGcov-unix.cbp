@@ -44,8 +44,6 @@
 		</VirtualTargets>
 		<Unit filename="GcovProcess.cpp" />
 		<Unit filename="GcovProcess.h" />
-		<Unit filename="SummaryDialog.cpp" />
-		<Unit filename="SummaryDialog.h" />
 		<Unit filename="cbGcov.cpp" />
 		<Unit filename="cbGcov.h" />
 		<Unit filename="cbGcovConfigPanel.cpp" />
@@ -59,10 +57,7 @@
 			<wxsmith version="1">
 				<gui name="wxWidgets" src="" main="" init_handlers="necessary" language="CPP" />
 				<resources>
-					<wxDialog wxs="wxsmith/SummaryDialog.wxs" src="SummaryDialog.cpp" hdr="SummaryDialog.h" name="SummaryDialog" language="CPP" />
-					<wxDialog wxs="wxsmith/CallListDialog.wxs" src="CallListDialog.cpp" hdr="CallListDialog.h" name="CallListDialog" language="CPP" />
-					<wxDialog wxs="wxsmith/CallButterflyDialog.wxs" src="CallButterflyDialog.cpp" hdr="CallButterflyDialog.h" name="CallButterflyDialog" language="CPP" />
-                    <wxPanel wxs="wxsmith/cbGcovConfigPanel.wxs" src="cbGcovConfigPanel.cpp" hdr="cbGcovConfigPanel.h" fwddecl="1" i18n="1" name="cbGcovConfigPanel" language="CPP" />
+					<wxPanel wxs="wxsmith/cbGcovConfigPanel.wxs" src="cbGcovConfigPanel.cpp" hdr="cbGcovConfigPanel.h" fwddecl="1" i18n="1" name="cbGcovConfigPanel" language="CPP" />
 				</resources>
 			</wxsmith>
 		</Extensions>
