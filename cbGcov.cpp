@@ -24,6 +24,8 @@
 #include "GcovProcess.h"
 #include "cbGcovConfigPanel.h"
 
+#include "cbGcovSummaryEdPanel.h"
+
 // Register the plugin with Code::Blocks.
 // We are using an anonymous namespace so we don't litter the global one.
 namespace
@@ -429,7 +431,7 @@ void cbGcov::GetStats(cbProject * prj)
             }
 
             LineInfos lineInfos;
-            m_LocalCodeLines = m_LocalCodeLinesCalled = 0;
+            m_LocalCodeLines = m_LocalCodeLinesCalled = m_LocalNonExecutableCodeLines = 0;
             GetLineInfos(gcovfilename, lineInfos);
 
             if(Manager::Get()->GetEditorManager() && Manager::Get()->GetEditorManager()->IsOpen(prjfile->file.GetFullPath()))
@@ -442,6 +444,7 @@ void cbGcov::GetStats(cbProject * prj)
             file_m_Stats.Filename = basefilename.GetFullName();
             file_m_Stats.codeLines = m_LocalCodeLines;
             file_m_Stats.codeLinesCalled = m_LocalCodeLinesCalled;
+            file_m_Stats.nonExecLines = m_LocalNonExecutableCodeLines;
             m_Stats.push_back(file_m_Stats);
         }
     }
@@ -452,6 +455,9 @@ void cbGcov::GetStats(cbProject * prj)
 
     str.Printf(_("Gcov summary: %d files analyzed"), m_Stats.size());
     Log(str);
+
+    Summaries summaries;
+
     for(std::vector<GcovStats>::iterator it = m_Stats.begin(); it < m_Stats.end(); ++it)
     {
         wxFileName fname(it->Filename);
@@ -461,24 +467,80 @@ void cbGcov::GetStats(cbProject * prj)
             wxArrayString output = (*mit).second;
             for(int k = 0; k < output.size(); ++k)
             {
-                if((output[k].Mid(0, 5) == _T("File ")) && (output[k].Find(fname.GetFullName()) != wxNOT_FOUND) &&
-                        (output[k+1].Mid(0, 15) == _T("Lines executed:")))
+                /*
+                File 'tests.cpp'
+                Lines executed:92.20% of 141
+                Branches executed:39.50% of 800
+                Taken at least once:20.25% of 800
+                Calls executed:29.64% of 1201
+                Creating 'tests.cpp.gcov'*/
+
+                if((output[k].Mid(0, 5) == _T("File ")) && (output[k].Find(fname.GetFullName()) != wxNOT_FOUND))
                 {
-                    wxString s = output[k+1].Mid(15);
-                    s = s.Mid(s.find_last_of(_T(" ")));
-                    unsigned long _codeLines = 0;
-                    s.ToULong(&_codeLines);
-                    s = output[k+1].Mid(15);
-                    s = s.Mid(0, s.find_first_of(_T("%")));
-                    double code_percentage = 0;
-                    s.ToDouble(&code_percentage);
+                    gcovSummaryFileData summary;
+                    summary.filename = fname.GetFullName();
+                    if(output[k+1].Mid(0, 15) == _T("Lines executed:"))
+                    {
+                        wxString s = output[k+1].Mid(15);
+                        s = s.Mid(s.find_last_of(_T(" ")));
+                        unsigned long _codeLines = 0;
+                        s.ToULong(&_codeLines);
+                        s = output[k+1].Mid(15);
+                        s = s.Mid(0, s.find_first_of(_T("%")));
+                        double code_percentage = 0;
+                        s.ToDouble(&code_percentage);
 
-                    str.Printf(_T("%s\n%s = %d, %s, %s, %s"), output[k].c_str(), output[k+1].c_str(), (int)(_codeLines * code_percentage / 100.0),
-                            output[k+2].c_str(), output[k+3].c_str(), output[k+4].c_str());
+                        str.Printf(_T("%s\n%s = %d, %s, %s, %s"), output[k].c_str(), output[k+1].c_str(), (int)(_codeLines * code_percentage / 100.0),
+                                output[k+2].c_str(), output[k+3].c_str(), output[k+4].c_str());
 
-                    total_codeLinesCalled += _codeLines * code_percentage / 100.0;
-                    total_codeLines += _codeLines;
-                    break;
+                        total_codeLinesCalled += _codeLines * code_percentage / 100.0;
+                        total_codeLines += _codeLines;
+
+                        summary.totalCodeLines = _codeLines;
+                        summary.totalCodeLinesCalled = _codeLines * code_percentage / 100.0;
+                        summary.hasLines = true;
+                    }
+                    if(output[k+2].Mid(0, 18) == _T("Branches executed:"))
+                    {
+                        wxString s = output[k+2].Mid(18);
+                        s = s.Mid(s.find_last_of(_T(" ")));
+                        unsigned long _branches = 0;
+                        s.ToULong(&_branches);
+                        s = output[k+2].Mid(18);
+                        s = s.Mid(0, s.find_first_of(_T("%")));
+                        double branches_percentage = 0;
+                        s.ToDouble(&branches_percentage);
+
+                        summary.totalBranches = _branches;
+                        summary.totalBranchesConditionEvaluated = _branches * branches_percentage / 100.0;
+                        summary.hasBranches = true;
+                    }
+                    if(output[k+3].Mid(0, 20) == _T("Taken at least once:"))
+                    {
+                        wxString s = output[k+3].Mid(20);
+                        s = s.Mid(0, s.find_first_of(_T("%")));
+                        double branchesTaken_percentage = 0;
+                        s.ToDouble(&branchesTaken_percentage);
+
+                        summary.totalBranchesTaken = summary.totalBranches * branchesTaken_percentage / 100.0;
+                        summary.hasBranchesTaken = true;
+                    }
+                    if(output[k+4].Mid(0, 15) == _T("Calls executed:"))
+                    {
+                        wxString s = output[k+4].Mid(15);
+                        s = s.Mid(s.find_last_of(_T(" ")));
+                        unsigned long _calls = 0;
+                        s.ToULong(&_calls);
+                        s = output[k+4].Mid(15);
+                        s = s.Mid(0, s.find_first_of(_T("%")));
+                        double calls_percentage = 0;
+                        s.ToDouble(&calls_percentage);
+
+                        summary.totalCalls = _calls;
+                        summary.totalCallsExecuted = _calls * calls_percentage / 100.0;
+                        summary.hasCalls = true;
+                    }
+                    summaries.push_back(summary);
                 }
             }
         }
@@ -503,6 +565,8 @@ void cbGcov::GetStats(cbProject * prj)
     Log(str);
     m_CodeLines += total_codeLines;
     m_CodeLinesCalled += total_codeLinesCalled;
+
+    new cbGcovSummaryEdPanel( (wxWindow*)Manager::Get()->GetEditorManager()->GetNotebook(), summaries, _T(""));
 
     str.Printf(_("Workspace total: %d of %d lines executed (%.1f%%)"), m_CodeLinesCalled,
             m_CodeLines, 100.0 * (float)m_CodeLinesCalled / (float)m_CodeLines);
@@ -580,6 +644,7 @@ void cbGcov::AddInfoFromLine(wxString &line, LineInfos &lineInfos)
         line.ToULong(&l, 10);
         lineInfos[(unsigned int)l].executionCount = NoCode;
         lastDetectedLine = l;
+        m_LocalNonExecutableCodeLines++;
     }
     else if(line.Mid(0, 6) == _T("#####:"))
     {

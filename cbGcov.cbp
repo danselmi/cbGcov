@@ -59,8 +59,13 @@
 		<Unit filename="cbGcov.h" />
 		<Unit filename="cbGcovConfigPanel.cpp" />
 		<Unit filename="cbGcovConfigPanel.h" />
+		<Unit filename="cbGcovSummaryEdPanel.cpp" />
+		<Unit filename="cbGcovSummaryEdPanel.h" />
+		<Unit filename="cbGcovSummaryPanel.cpp" />
+		<Unit filename="cbGcovSummaryPanel.h" />
 		<Unit filename="manifest.xml" />
 		<Unit filename="wxsmith/cbGcovConfigPanel.wxs" />
+		<Unit filename="wxsmith/cbGcovSummaryPanel.wxs" />
 		<Extensions>
 			<code_completion />
 			<envvars />
@@ -69,6 +74,7 @@
 				<gui name="wxWidgets" src="" main="" init_handlers="necessary" language="CPP" />
 				<resources>
 					<wxPanel wxs="wxsmith/cbGcovConfigPanel.wxs" src="cbGcovConfigPanel.cpp" hdr="cbGcovConfigPanel.h" fwddecl="1" i18n="1" name="cbGcovConfigPanel" language="CPP" />
+					<wxPanel wxs="wxsmith/cbGcovSummaryPanel.wxs" src="cbGcovSummaryPanel.cpp" hdr="cbGcovSummaryPanel.h" fwddecl="1" i18n="1" name="cbGcovSummaryPanel" language="CPP" />
 				</resources>
 			</wxsmith>
 		</Extensions>

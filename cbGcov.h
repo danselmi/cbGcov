@@ -36,7 +36,10 @@ struct GcovStats
     wxString    Filename;
     int         codeLines;
     int         codeLinesCalled;
+    int         nonExecLines;
 };
+
+
 struct cbGcovConfig;
 /**
 * @brief Implements main functionality of the plugin.
@@ -151,6 +154,7 @@ private:
 
     unsigned int m_LocalCodeLines;          /**< lines of code per file */
     unsigned int m_LocalCodeLinesCalled;    /**< lines of executed code per file */
+    unsigned int m_LocalNonExecutableCodeLines;    /**< lines of not executable code per file */
     unsigned int m_CodeLines;               /**< lines of code per workspace */
     unsigned int m_CodeLinesCalled;         /**< lines of executed code per workspace */
     unsigned int m_ParallelProcessCount;    /**< number of processes for parallel execution */
