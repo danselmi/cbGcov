@@ -514,16 +514,17 @@ void cbGcov::GetStats(cbProject * prj)
                         summary.totalBranches = _branches;
                         summary.totalBranchesConditionEvaluated = _branches * branches_percentage / 100.0;
                         summary.hasBranches = true;
-                    }
-                    if(output[k+3].Mid(0, 20) == _T("Taken at least once:"))
-                    {
-                        wxString s = output[k+3].Mid(20);
-                        s = s.Mid(0, s.find_first_of(_T("%")));
-                        double branchesTaken_percentage = 0;
-                        s.ToDouble(&branchesTaken_percentage);
 
-                        summary.totalBranchesTaken = summary.totalBranches * branchesTaken_percentage / 100.0;
-                        summary.hasBranchesTaken = true;
+                        if(output[k+3].Mid(0, 20) == _T("Taken at least once:"))
+                        {
+                            wxString s = output[k+3].Mid(20);
+                            s = s.Mid(0, s.find_first_of(_T("%")));
+                            double branchesTaken_percentage = 0;
+                            s.ToDouble(&branchesTaken_percentage);
+
+                            summary.totalBranchesTaken = summary.totalBranches * branchesTaken_percentage / 100.0;
+                            summary.hasBranchesTaken = true;
+                        }
                     }
                     if(output[k+4].Mid(0, 15) == _T("Calls executed:"))
                     {

@@ -60,9 +60,58 @@ cbGcovSummaryPanel::cbGcovSummaryPanel(wxWindow* parent, const Summaries &summar
     wxListItem col3;
     col3.SetId(3);
     col3.SetAlign(wxLIST_FORMAT_RIGHT);
-    col3.SetText( _("Coverage [\%]") );
+    col3.SetText( _("Line Coverage [%]") );
     col3.SetWidth(100);
     listCtrl->InsertColumn(3, col3);
+
+    wxListItem col4;
+    col4.SetId(4);
+    col4.SetAlign(wxLIST_FORMAT_RIGHT);
+    col4.SetText( _("Total branches") );
+    col4.SetWidth(100);
+    listCtrl->InsertColumn(4, col4);
+
+    wxListItem col5;
+    col5.SetId(5);
+    col5.SetAlign(wxLIST_FORMAT_RIGHT);
+    col5.SetText( _("condition evaluated") );
+    col5.SetWidth(100);
+    listCtrl->InsertColumn(5, col5);
+
+    wxListItem col6;
+    col6.SetId(6);
+    col6.SetAlign(wxLIST_FORMAT_RIGHT);
+    col6.SetText( _("taken") );
+    col6.SetWidth(100);
+    listCtrl->InsertColumn(6, col6);
+
+    wxListItem col7;
+    col7.SetId(7);
+    col7.SetAlign(wxLIST_FORMAT_RIGHT);
+    col7.SetText( _("Coverage [%]") );
+    col7.SetWidth(100);
+    listCtrl->InsertColumn(7, col7);
+
+    wxListItem col8;
+    col8.SetId(8);
+    col8.SetAlign(wxLIST_FORMAT_RIGHT);
+    col8.SetText( _("Total calls") );
+    col8.SetWidth(100);
+    listCtrl->InsertColumn(8, col8);
+
+    wxListItem col9;
+    col9.SetId(9);
+    col9.SetAlign(wxLIST_FORMAT_RIGHT);
+    col9.SetText( _("executed") );
+    col9.SetWidth(100);
+    listCtrl->InsertColumn(9, col9);
+
+    wxListItem col10;
+    col10.SetId(10);
+    col10.SetAlign(wxLIST_FORMAT_RIGHT);
+    col10.SetText( _("Coverage [%]") );
+    col10.SetWidth(100);
+    listCtrl->InsertColumn(10, col10);
 
     for(size_t n = 0 ; n < summaries.size() ; ++n)
     {
@@ -73,9 +122,32 @@ cbGcovSummaryPanel::cbGcovSummaryPanel(wxWindow* parent, const Summaries &summar
         listCtrl->InsertItem( item );
 
         listCtrl->SetItem(n, 0, data.filename);
-        listCtrl->SetItem(n, 1, wxString::Format(_T("%d"), data.totalCodeLines));
-        listCtrl->SetItem(n, 2, wxString::Format(_T("%d"), data.totalCodeLinesCalled));
-        listCtrl->SetItem(n, 3, wxString::Format(_T("%.2f"), 100.0*data.totalCodeLinesCalled/data.totalCodeLines));
+        if(data.hasLines)
+        {
+            listCtrl->SetItem(n, 1, wxString::Format(_T("%d"), data.totalCodeLines));
+            listCtrl->SetItem(n, 2, wxString::Format(_T("%d"), data.totalCodeLinesCalled));
+            listCtrl->SetItem(n, 3, wxString::Format(_T("%.2f"), 100.0*data.totalCodeLinesCalled/data.totalCodeLines));
+        }
+        if(data.hasBranches)
+        {
+            listCtrl->SetItem(n, 4, wxString::Format(_T("%d"), data.totalBranches));
+            listCtrl->SetItem(n, 5, wxString::Format(_T("%d"), data.totalBranchesConditionEvaluated));
+            if(data.hasBranchesTaken)
+            {
+                listCtrl->SetItem(n, 6, wxString::Format(_T("%d"), data.totalBranchesTaken));
+                listCtrl->SetItem(n, 7, wxString::Format(_T("%.2f"), 100.0*data.totalBranchesTaken/data.totalBranches));
+            }
+            else
+            {
+                listCtrl->SetItem(n, 7, wxString::Format(_T("%.2f"), 100.0*data.totalBranchesConditionEvaluated/data.totalBranches));
+            }
+        }
+        if(data.hasCalls)
+        {
+            listCtrl->SetItem(n, 8, wxString::Format(_T("%d"), data.totalCalls));
+            listCtrl->SetItem(n, 9, wxString::Format(_T("%d"), data.totalCallsExecuted));
+            listCtrl->SetItem(n, 10, wxString::Format(_T("%.2f"), 100.0*data.totalCallsExecuted/data.totalCalls));
+        }
     }
 }
 
