@@ -48,6 +48,8 @@
 		<Unit filename="cbGcov.h" />
 		<Unit filename="cbGcovConfigPanel.cpp" />
 		<Unit filename="cbGcovConfigPanel.h" />
+		<Unit filename="cbGcovSummaryPanel.cpp" />
+		<Unit filename="cbGcovSummaryPanel.h" />
 		<Unit filename="manifest.xml" />
 		<Unit filename="wxsmith/cbGcovConfigPanel.wxs" />
 		<Extensions>

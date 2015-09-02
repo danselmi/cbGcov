@@ -24,7 +24,7 @@
 #include "GcovProcess.h"
 #include "cbGcovConfigPanel.h"
 
-#include "cbGcovSummaryEdPanel.h"
+#include "cbGcovSummaryPanel.h"
 
 // Register the plugin with Code::Blocks.
 // We are using an anonymous namespace so we don't litter the global one.
@@ -441,7 +441,7 @@ void cbGcov::GetStats(cbProject * prj)
                     ShowCovData(ed, lineInfos);
             }
 
-            file_m_Stats.Filename = basefilename.GetFullName();
+            file_m_Stats.FilePath = prjfile->file.GetFullPath();
             file_m_Stats.codeLines = m_LocalCodeLines;
             file_m_Stats.codeLinesCalled = m_LocalCodeLinesCalled;
             file_m_Stats.nonExecLines = m_LocalNonExecutableCodeLines;
@@ -460,7 +460,7 @@ void cbGcov::GetStats(cbProject * prj)
 
     for(std::vector<GcovStats>::iterator it = m_Stats.begin(); it < m_Stats.end(); ++it)
     {
-        wxFileName fname(it->Filename);
+        wxFileName fname(it->FilePath);
         str.Empty();
         for(Output_t::iterator mit = m_Output.begin(); mit != m_Output.end(); ++mit)
         {
@@ -478,7 +478,7 @@ void cbGcov::GetStats(cbProject * prj)
                 if((output[k].Mid(0, 5) == _T("File ")) && (output[k].Find(fname.GetFullName()) != wxNOT_FOUND))
                 {
                     gcovSummaryFileData summary;
-                    summary.filename = fname.GetFullName();
+                    summary.filename = fname.GetFullPath();
                     if(output[k+1].Mid(0, 15) == _T("Lines executed:"))
                     {
                         wxString s = output[k+1].Mid(15);
@@ -546,7 +546,8 @@ void cbGcov::GetStats(cbProject * prj)
         }
         if(str.IsEmpty())
         {
-            str.Printf(_("%-40s: %d of %d lines executed (%.1f%%) *approximate result given by cbGcov parser*"), it->Filename.c_str(), it->codeLinesCalled,
+            wxFileName fname(it->FilePath);
+            str.Printf(_("%-40s: %d of %d lines executed (%.1f%%) *approximate result given by cbGcov parser*"), fname.GetFullName().c_str(), it->codeLinesCalled,
                     it->codeLines, 100 * (float)it->codeLinesCalled / (float)it->codeLines);
 //      total_codeLinesCalled += it->codeLinesCalled;
 //      total_codeLines += it->codeLines;
@@ -566,7 +567,7 @@ void cbGcov::GetStats(cbProject * prj)
     m_CodeLines += total_codeLines;
     m_CodeLinesCalled += total_codeLinesCalled;
 
-    new cbGcovSummaryEdPanel( (wxWindow*)Manager::Get()->GetEditorManager()->GetNotebook(), summaries, _T(""));
+    new cbGcovSummaryPanel( (wxWindow*)Manager::Get()->GetEditorManager()->GetNotebook(), summaries);
 
     str.Printf(_("Workspace total: %d of %d lines executed (%.1f%%)"), m_CodeLinesCalled,
             m_CodeLines, 100.0 * (float)m_CodeLinesCalled / (float)m_CodeLines);

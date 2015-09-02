@@ -1,7 +1,7 @@
 #include "cbGcovSummaryPanel.h"
+#include "editormanager.h"
 
 //(*InternalHeaders(cbGcovSummaryPanel)
-#include <wx/listctrl.h>
 #include <wx/sizer.h>
 #include <wx/intl.h>
 #include <wx/string.h>
@@ -16,25 +16,31 @@ BEGIN_EVENT_TABLE(cbGcovSummaryPanel,wxPanel)
 	//*)
 END_EVENT_TABLE()
 
+wxString cbGcovSummaryPanel::shortName_(_("cbGcov summary"));
 
-cbGcovSummaryPanel::cbGcovSummaryPanel(wxWindow* parent, const Summaries &summaries, wxWindowID id)
+
+cbGcovSummaryPanel::cbGcovSummaryPanel(wxWindow* parent, const Summaries &summaries):
+    EditorBase(parent, _("cbGcov summary"))
 {
 	//(*Initialize(cbGcovSummaryPanel)
 	wxBoxSizer* BoxSizer1;
 
-	Create(parent, id, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("id"));
+	//Create(0, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("wxID_ANY"));
 	BoxSizer1 = new wxBoxSizer(wxHORIZONTAL);
-	listCtrl = new wxListCtrl(this, ID_LISTCTRL, wxDefaultPosition, wxDefaultSize, wxLC_REPORT);
+	listCtrl = new wxListCtrl(this, ID_LISTCTRL, wxDefaultPosition, wxDefaultSize, wxLC_REPORT, wxDefaultValidator, _T("ID_LISTCTRL"));
 	BoxSizer1->Add(listCtrl, 1, wxALL|wxEXPAND, 5);
 	SetSizer(BoxSizer1);
+	BoxSizer1->Fit(this);
+	BoxSizer1->SetSizeHints(this);
+
+	Connect(ID_LISTCTRL,wxEVT_COMMAND_LIST_ITEM_ACTIVATED,(wxObjectEventFunction)&cbGcovSummaryPanel::ItemActivated);
 	//*)
 
     wxListItem col0;
     col0.SetId(0);
     col0.SetAlign(wxLIST_FORMAT_LEFT);
     col0.SetText( _("Filename") );
-    col0.SetWidth(100);
-    col0.SetWidth(50);
+    col0.SetWidth(400);
     listCtrl->InsertColumn(0, col0);
 
     wxListItem col1;
@@ -80,3 +86,26 @@ cbGcovSummaryPanel::~cbGcovSummaryPanel()
 }
 
 
+const wxString& cbGcovSummaryPanel::GetFilename() const
+{
+    return shortName_;
+}
+
+const wxString& cbGcovSummaryPanel::GetShortName() const
+{
+    return shortName_;
+}
+
+const wxString& cbGcovSummaryPanel::GetTitle()
+{
+    return shortName_;
+}
+
+void cbGcovSummaryPanel::ItemActivated(wxListEvent& event)
+{
+    const wxListItem &item = event.GetItem();
+
+    wxString filename(item.GetText());
+
+    Manager::Get()->GetEditorManager()->Open(filename);
+}

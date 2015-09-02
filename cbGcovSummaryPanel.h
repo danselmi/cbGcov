@@ -2,10 +2,12 @@
 #define CBGCOVSUMMARYPANEL_H
 
 #include <vector>
+#include <wx/listctrl.h>
+
+#include "editorbase.h"
 
 //(*Headers(cbGcovSummaryPanel)
 #include <wx/panel.h>
-class wxListCtrl;
 class wxBoxSizer;
 //*)
 
@@ -31,17 +33,23 @@ struct gcovSummaryFileData
 };
 typedef std::vector<gcovSummaryFileData> Summaries;
 
-class cbGcovSummaryPanel: public wxPanel
+class cbGcovSummaryPanel: public EditorBase
 {
 	public:
 
-		cbGcovSummaryPanel(wxWindow* parent, const Summaries &summaries, wxWindowID id=wxID_ANY);
+		cbGcovSummaryPanel(wxWindow* parent, const Summaries &summaries);
 		virtual ~cbGcovSummaryPanel();
 
 		//(*Declarations(cbGcovSummaryPanel)
 		wxListCtrl* listCtrl;
 		//*)
 
+        virtual const wxString& GetFilename() const;
+
+		virtual const wxString& GetShortName() const;
+        virtual const wxString& GetTitle();
+        virtual bool VisibleToTree() const { return false; }
+        //virtual bool IsReadOnly() const { return true; }
 
 	protected:
 
@@ -49,9 +57,11 @@ class cbGcovSummaryPanel: public wxPanel
 		static const long ID_LISTCTRL;
 		//*)
 
-	private:
+    private:
+        static wxString shortName_;
 
 		//(*Handlers(cbGcovSummaryPanel)
+		void ItemActivated(wxListEvent& event);
 		//*)
 
 		DECLARE_EVENT_TABLE()

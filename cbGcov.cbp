@@ -59,8 +59,6 @@
 		<Unit filename="cbGcov.h" />
 		<Unit filename="cbGcovConfigPanel.cpp" />
 		<Unit filename="cbGcovConfigPanel.h" />
-		<Unit filename="cbGcovSummaryEdPanel.cpp" />
-		<Unit filename="cbGcovSummaryEdPanel.h" />
 		<Unit filename="cbGcovSummaryPanel.cpp" />
 		<Unit filename="cbGcovSummaryPanel.h" />
 		<Unit filename="manifest.xml" />

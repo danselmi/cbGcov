@@ -33,7 +33,7 @@ const int NoCode = -1;
 */
 struct GcovStats
 {
-    wxString    Filename;
+    wxString    FilePath;
     int         codeLines;
     int         codeLinesCalled;
     int         nonExecLines;
