@@ -31,26 +31,31 @@ cbGcovSummaryPanel::cbGcovSummaryPanel(wxWindow* parent, const Summaries &summar
 
     wxListItem col0;
     col0.SetId(0);
+    col0.SetAlign(wxLIST_FORMAT_LEFT);
     col0.SetText( _("Filename") );
+    col0.SetWidth(100);
     col0.SetWidth(50);
     listCtrl->InsertColumn(0, col0);
 
-    // Add second column
     wxListItem col1;
     col1.SetId(1);
+    col1.SetAlign(wxLIST_FORMAT_RIGHT);
     col1.SetText( _("Total lines") );
+    col1.SetWidth(100);
     listCtrl->InsertColumn(1, col1);
 
-    // Add third column
     wxListItem col2;
     col2.SetId(2);
+    col2.SetAlign(wxLIST_FORMAT_RIGHT);
     col2.SetText( _("Executed lines") );
+    col2.SetWidth(100);
     listCtrl->InsertColumn(2, col2);
 
-    // Add third column
     wxListItem col3;
-    col2.SetId(3);
-    col2.SetText( _("Coverage [%]") );
+    col3.SetId(3);
+    col3.SetAlign(wxLIST_FORMAT_RIGHT);
+    col3.SetText( _("Coverage [\%]") );
+    col3.SetWidth(100);
     listCtrl->InsertColumn(3, col3);
 
     for(size_t n = 0 ; n < summaries.size() ; ++n)
@@ -64,7 +69,7 @@ cbGcovSummaryPanel::cbGcovSummaryPanel(wxWindow* parent, const Summaries &summar
         listCtrl->SetItem(n, 0, data.filename);
         listCtrl->SetItem(n, 1, wxString::Format(_T("%d"), data.totalCodeLines));
         listCtrl->SetItem(n, 2, wxString::Format(_T("%d"), data.totalCodeLinesCalled));
-        listCtrl->SetItem(n, 3, wxString::Format(_T("%f"), 100.0*data.totalCodeLinesCalled/data.totalCodeLines));
+        listCtrl->SetItem(n, 3, wxString::Format(_T("%.2f"), 100.0*data.totalCodeLinesCalled/data.totalCodeLines));
     }
 }
 
