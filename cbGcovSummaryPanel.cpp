@@ -104,9 +104,22 @@ cbGcovSummaryPanel::cbGcovSummaryPanel(wxWindow* parent, const Summaries &summar
         if(data.hasLines)
         {
             listCtrl->SetItem(n, 1, wxString::Format(_T("%d / %d"), data.totalCodeLinesCalled, data.totalCodeLines));
+
             float cov = 100.0*data.totalCodeLinesCalled/data.totalCodeLines;
-            listCtrl->SetItem(n, 2, wxString::Format(_T("%.2f"), cov));
-            //if(cov < 70
+            long id = listCtrl->SetItem(n, 2, wxString::Format(_T("%.2f"), cov));
+            //listCtrl->SetItemBackgroundColour(2, *wxRED);
+//            wxListItem item;
+//            item.SetId(n);
+//            item.SetColumn(2);
+//            item.SetMask(wxLIST_MASK_TEXT);
+//            item.SetText(wxString::Format(_T("%.2f"), cov));
+//            if(cov < 50)
+//                item.SetBackgroundColour(*wxRED);
+//            else if(cov < 80)
+//                item.SetBackgroundColour(wxColour(0xff,0xff,0x00));
+//            else
+//                item.SetBackgroundColour(*wxGREEN);
+//            listCtrl->SetItem(item);
         }
         if(data.hasBranches)
         {
