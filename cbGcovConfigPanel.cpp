@@ -42,7 +42,7 @@ cbGcovConfigPanel::cbGcovConfigPanel(wxWindow* parent, cbGcov *plugin, wxWindowI
 	BranchProbabilitiesCheckBox->SetValue(false);
 	BranchProbabilitiesCheckBox->SetToolTip(_("Write branch frequencies to the output file, and write branch summary info to the standard output"));
 	BoxSizer2->Add(BranchProbabilitiesCheckBox, 1, wxALL, 5);
-	BoxSizer1->Add(BoxSizer2, 1, wxALL|wxALIGN_CENTER_HORIZONTAL, 5);
+	BoxSizer1->Add(BoxSizer2, 0, wxALL|wxALIGN_LEFT, 5);
 	BoxSizer1->Add(-1,-1,1, wxALL|wxEXPAND, 5);
 	SetSizer(BoxSizer1);
 	BoxSizer1->Fit(this);
