@@ -83,7 +83,7 @@ void cbGcovConfigPanel::OnCancel()
 
 wxString cbGcovConfigPanel::GetTitle() const
 {
-    return _("cbGcov");
+    return _T("cbGcov");
 }
 wxString cbGcovConfigPanel::GetBitmapBaseName() const
 {

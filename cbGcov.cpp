@@ -100,9 +100,9 @@ void cbGcov::OnAttach()
     ColourManager* cm = Manager::Get()->GetColourManager();
     if(cm)
     {
-        cm->RegisterColour(_("cbGcov"), _("no executable code"), wxT("cbgcov_not_executable"), *wxBLACK );
-        cm->RegisterColour(_("cbGcov"), _("never executed"), wxT("cbgcov_not_executed"), *wxRED );
-        cm->RegisterColour(_("cbGcov"), _("executed at least once"), wxT("cbgcov_executed"), *wxGREEN );
+        cm->RegisterColour(_T("cbGcov"), _("no executable code"), _T("cbgcov_not_executable"), *wxBLACK );
+        cm->RegisterColour(_T("cbGcov"), _("never executed"), _T("cbgcov_not_executed"), *wxRED );
+        cm->RegisterColour(_T("cbGcov"), _("executed at least once"), _T("cbgcov_executed"), *wxGREEN );
     }
     UpdateConfig();
 
@@ -153,7 +153,7 @@ void cbGcov::OnRelease(bool appShutDown)
 int cbGcov::Configure()
 {
     //create and display the configuration dialog for your plugin
-    cbConfigurationDialog dlg(Manager::Get()->GetAppWindow(), wxID_ANY, _("Your dialog title"));
+    cbConfigurationDialog dlg(Manager::Get()->GetAppWindow(), wxID_ANY, _("cbGcov configuration"));
     cbConfigurationPanel* panel = GetConfigurationPanel(&dlg);
     if(panel)
     {
@@ -175,9 +175,9 @@ void cbGcov::BuildMenu(wxMenuBar* menuBar)
         wxMenu *prjmenu = menuBar->GetMenu(projectmenupos);
         prjmenu->AppendSeparator();
         //prjmenu->Append(idDoShowGcov, _T("Show Coverage Data"));
-        prjmenu->Append(idDoGcov, _T("Run Gcov on project"));
-        prjmenu->Append(idDoGcovAnalyze, _T("Run Gcov on workspace"));
-        prjmenu->Append(idAddInstrumentationToProject, _T("Add Gcov instrumentation"), _T("Add compiler/linker option to add gcov coverage instrumentation to project."));
+        prjmenu->Append(idDoGcov, _("Run Gcov on project"));
+        prjmenu->Append(idDoGcovAnalyze, _("Run Gcov on workspace"));
+        prjmenu->Append(idAddInstrumentationToProject, _("Add Gcov instrumentation"), _("Add compiler/linker option to add gcov coverage instrumentation to project."));
     }
 }
 
@@ -416,7 +416,7 @@ void cbGcov::GetStats(cbProject * prj)
         //(inline code in class definition or template implementations)
         if(prjfile)
         {
-            Log(_("GcovStats"));
+            Log(_T("GcovStats"));
             const wxFileName basefilename(prjfile->file.GetFullPath());
             const wxFileName gcovfilename(jobsWorkingdir + basefilename.GetFullName() + _T(".gcov"));
             if(! gcovfilename.FileExists())
