@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<wxsmith>
+	<object class="wxPanel" name="cbGcovSummaryPanel">
+		<parent_arg>0</parent_arg>
+		<id_arg>0</id_arg>
+		<object class="wxBoxSizer" variable="BoxSizer1" member="no">
+			<object class="sizeritem">
+				<object class="wxListCtrl" name="ID_LISTCTRL" variable="listCtrl" member="yes">
+					<style>wxLC_REPORT</style>
+				</object>
+				<flag>wxALL|wxALIGN_TOP</flag>
+				<border>5</border>
+			</object>
+		</object>
+	</object>
+</wxsmith>
