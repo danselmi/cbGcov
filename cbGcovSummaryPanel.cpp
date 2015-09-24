@@ -2,6 +2,7 @@
 #include "editormanager.h"
 
 //(*InternalHeaders(cbGcovSummaryPanel)
+#include <wx/listctrl.h>
 #include <wx/sizer.h>
 #include <wx/intl.h>
 #include <wx/string.h>
@@ -25,7 +26,7 @@ cbGcovSummaryPanel::cbGcovSummaryPanel(wxWindow* parent, const Summaries &summar
 	//(*Initialize(cbGcovSummaryPanel)
 	wxBoxSizer* BoxSizer1;
 
-	//Create(0, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("wxID_ANY"));
+	Create(0, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("wxID_ANY"));
 	BoxSizer1 = new wxBoxSizer(wxHORIZONTAL);
 	listCtrl = new wxListCtrl(this, ID_LISTCTRL, wxDefaultPosition, wxDefaultSize, wxLC_REPORT, wxDefaultValidator, _T("ID_LISTCTRL"));
 	BoxSizer1->Add(listCtrl, 1, wxALL|wxEXPAND, 5);

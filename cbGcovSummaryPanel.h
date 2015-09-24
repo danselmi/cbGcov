@@ -8,6 +8,7 @@
 
 //(*Headers(cbGcovSummaryPanel)
 #include <wx/panel.h>
+class wxListCtrl;
 class wxBoxSizer;
 //*)
 
