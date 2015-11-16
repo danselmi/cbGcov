@@ -49,8 +49,9 @@ class cbGcovSummaryPanel: public EditorBase
 
 		virtual const wxString& GetShortName() const;
         virtual const wxString& GetTitle();
-        virtual bool VisibleToTree() const { return false; }
-        //virtual bool IsReadOnly() const { return true; }
+
+        
+        virtual bool VisibleToTree() const { return false; }/// not visible in open files list
 
 	protected:
 
