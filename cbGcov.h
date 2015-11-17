@@ -27,19 +27,6 @@ struct cbGcovConfig;
 
 const int NoCode = -1;
 
-/**
-* @brief Data container for internal cbGcov analysis.
-*
-*/
-struct GcovStats
-{
-    wxString    FilePath;
-    int         codeLines;
-    int         codeLinesCalled;
-    int         nonExecLines;
-};
-
-
 struct cbGcovConfig;
 /**
 * @brief Implements main functionality of the plugin.
@@ -159,7 +146,6 @@ private:
     unsigned int m_CodeLinesCalled;         /**< lines of executed code per workspace */
     unsigned int m_ParallelProcessCount;    /**< number of processes for parallel execution */
     Output_t m_Output;                      /**< captured gcov process output */
-    std::vector<GcovStats> m_Stats;         /**< statistics computed by cbGcov, not usable for now */
     std::vector<cbProject*> m_Prjs;         /**< projects in queue */
     cbProject* m_Prj;                       /**< currently processed project */
     GcovProcesses_t m_pProcesses;           /**< currently running gcov processes */

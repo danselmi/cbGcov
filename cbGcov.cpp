@@ -280,9 +280,7 @@ void cbGcov::ShowCovData(cbEditor *ed, cbProject* prj)
     wxString jobsWorkingdir;
 
     if(!ed)
-    {
         return;
-    }
 
     // Either process a file belonging for a specific project, or use a global setting.
     if(!prj)
@@ -319,9 +317,7 @@ void cbGcov::ShowCovData(cbEditor *ed, LineInfos &lineInfos)
     cbStyledTextCtrl* stc;
 
     if(!ed || (stc = ed->GetControl()) == 0)
-    {
         return;
-    }
 
     ClearCovData(ed);
     stc->SetMarginWidth(cbGcovMarginNumber, 60);
@@ -402,11 +398,9 @@ void cbGcov::ShowCovData(cbEditor *ed, LineInfos &lineInfos)
 void cbGcov::GetStats(cbProject * prj)
 {
     if(!prj)
-    {
         return;
-    }
-    GcovStats file_m_Stats;
-    m_Stats.clear();
+
+    wxArrayString processedFiles;
     wxString jobsWorkingdir = prj->GetBasePath();
 
     for (FilesList::iterator it = prj->GetFilesList().begin(); it != prj->GetFilesList().end(); ++it)
@@ -441,11 +435,7 @@ void cbGcov::GetStats(cbProject * prj)
                     ShowCovData(ed, lineInfos);
             }
 
-            file_m_Stats.FilePath = prjfile->file.GetFullPath();
-            file_m_Stats.codeLines = m_LocalCodeLines;
-            file_m_Stats.codeLinesCalled = m_LocalCodeLinesCalled;
-            file_m_Stats.nonExecLines = m_LocalNonExecutableCodeLines;
-            m_Stats.push_back(file_m_Stats);
+            processedFiles.push_back(prjfile->file.GetFullPath());
         }
     }
 
@@ -453,14 +443,14 @@ void cbGcov::GetStats(cbProject * prj)
     int total_codeLinesCalled = 0;
     int total_codeLines = 0;
 
-    str.Printf(_("Gcov summary: %d files analyzed"), m_Stats.size());
+    str.Printf(_("Gcov summary: %d files analyzed"), processedFiles.size());
     Log(str);
 
     Summaries summaries;
 
-    for(std::vector<GcovStats>::iterator it = m_Stats.begin(); it < m_Stats.end(); ++it)
+    for(wxArrayString::iterator it = processedFiles.begin(); it < processedFiles.end(); ++it)
     {
-        wxFileName fname(it->FilePath);
+        wxFileName fname(*it);
         str.Empty();
         for(Output_t::iterator mit = m_Output.begin(); mit != m_Output.end(); ++mit)
         {
@@ -545,15 +535,8 @@ void cbGcov::GetStats(cbProject * prj)
                 }
             }
         }
-        if(str.IsEmpty())
-        {
-            wxFileName fname(it->FilePath);
-            str.Printf(_("%-40s: %d of %d lines executed (%.1f%%) *approximate result given by cbGcov parser*"), fname.GetFullName().c_str(), it->codeLinesCalled,
-                    it->codeLines, 100 * (float)it->codeLinesCalled / (float)it->codeLines);
-//      total_codeLinesCalled += it->codeLinesCalled;
-//      total_codeLines += it->codeLines;
-        }
-        Log(str);
+        if(!str.IsEmpty())
+            Log(str);
     }
     if(total_codeLines)
     {
@@ -920,7 +903,6 @@ void cbGcov::StartGcov()
         cbProject* prj = m_Prj;
         WorkspaceNextProject(); // Process next project in a workspace, if one is available
         //UpdateEditors(prj);     // if next project is processed by WorkspaceNextProject() then UpdateEditors() is done in parallel
-
     }
 }
 
@@ -1129,7 +1111,6 @@ void cbGcov::Initialize()
 {
     m_ParallelProcessCount = Manager::Get()->GetConfigManager(_T("compiler"))->ReadInt(_T("/parallel_processes"), 1);
     m_Output.clear();
-    m_Stats.clear();
     m_Cmds.clear();
     m_JobsFileList.clear();
     m_Prjs.clear();
