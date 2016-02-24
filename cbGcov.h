@@ -135,7 +135,14 @@ private:
                      wxArrayString functionCalls;
                      wxArrayString branchInfos;
                      wxArrayString callInfos;};
-    typedef std::map<unsigned int, LineInfo> LineInfos;
+    typedef std::map<unsigned int, LineInfo> LineInformations;
+    struct ExecNotexecLines{
+        std::vector<unsigned int> ExecLines;
+        std::vector<unsigned int> NotexecLines;
+    };
+    typedef std::map<cbEditor*, ExecNotexecLines> EditorExecNotexecLines;
+    EditorExecNotexecLines edLineExecInfos;
+
     typedef std::map<int, wxArrayString> Output_t;           /**< wxProcessEvent::GetPid(), Log of process output */
     typedef std::map<int, GcovProcess*> GcovProcesses_t;     /**< wxProcessEvent::GetPid(), GcovProcess* */
 
@@ -157,12 +164,12 @@ private:
     void Log(wxString str);
     void InitTextCtrlForCovData(cbStyledTextCtrl *stc);
     void ShowCovData(cbEditor *ed, cbProject* prj = 0);
-    void ShowCovData(cbEditor *ed, LineInfos &lineInfos);
+    void ShowCovData(cbEditor *ed, LineInformations &lineInfos);
     void ClearCovData(cbEditor *ed);
     void UpdateEditors(cbProject*);
 
-    void GetLineInfos(wxFileName filename, LineInfos &lineInfos);
-    void AddInfoFromLine(wxString &line, LineInfos &lineInfos);
+    void GetLineInfos(wxFileName filename, LineInformations &lineInfos);
+    void AddInfoFromLine(wxString &line, LineInformations &lineInfos);
 
     void GcovProject(cbProject*);
     void GetStats(cbProject*);
@@ -184,6 +191,7 @@ private:
     void OnUpdateGcovWorkspace(wxUpdateUIEvent& event);
 
     void OnEditorOpen(CodeBlocksEvent &event);
+    void OnEditorClose(CodeBlocksEvent &event);
     void OnEditorModified(CodeBlocksEvent &event);
     void OnCleanProject(CodeBlocksEvent &event);
     void OnCleanWorkspace(CodeBlocksEvent &event);
@@ -193,6 +201,18 @@ private:
 
     DECLARE_EVENT_TABLE();
     cbGcovConfig *config_;
+
+    void OnGotoNextNotExecutedLine(wxCommandEvent &event);
+    void OnGotoPreviousNotExecutedLine(wxCommandEvent &event);
+    void OnGotoNextExecutedLine(wxCommandEvent &event);
+    void OnGotoPreviousExecutedLine(wxCommandEvent &event);
+    void OnUpdateNextNotExecutedLine(wxUpdateUIEvent &event);
+    void OnUpdatePreviousNotExecutedLine(wxUpdateUIEvent &event);
+    void OnUpdateNextExecutedLine(wxUpdateUIEvent &event);
+    void OnUpdatePreviousExecutedLine(wxUpdateUIEvent &event);
+    wxToolBar* m_pTbar;
+    void PopulateToolbar16(wxToolBar* toolBar);
+    void PopulateToolbar22(wxToolBar* toolBar);
 public:
     void OnProcessGeneratedOutputLine(const wxString &line, unsigned int id);
 
