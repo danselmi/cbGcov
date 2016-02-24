@@ -1,6 +1,8 @@
 #include "cbGcovSummaryPanel.h"
 #include "editormanager.h"
 
+#include <algorithm>
+
 //(*InternalHeaders(cbGcovSummaryPanel)
 #include <wx/listctrl.h>
 #include <wx/sizer.h>
@@ -21,7 +23,8 @@ wxString cbGcovSummaryPanel::shortName_(_("cbGcov summary"));
 
 
 cbGcovSummaryPanel::cbGcovSummaryPanel(wxWindow* parent, const Summaries &summaries):
-    EditorBase(parent, _("cbGcov summary"))
+    EditorBase(parent, _("cbGcov summary")),
+    summaries_(summaries)
 {
 	//(*Initialize(cbGcovSummaryPanel)
 	wxBoxSizer* BoxSizer1;
@@ -34,7 +37,35 @@ cbGcovSummaryPanel::cbGcovSummaryPanel(wxWindow* parent, const Summaries &summar
 
 	Connect(ID_LISTCTRL,wxEVT_COMMAND_LIST_ITEM_ACTIVATED,(wxObjectEventFunction)&cbGcovSummaryPanel::ItemActivated);
 	//*)
+	Connect(ID_LISTCTRL, wxEVT_COMMAND_LIST_COL_CLICK, (wxObjectEventFunction)&cbGcovSummaryPanel::OnColClick);
 	Layout();
+
+	InitGrid();
+}
+
+bool comapreGcovSummaryFileDataDescending(const gcovSummaryFileData &a, const gcovSummaryFileData &b)
+{
+    return a.filename < b.filename;
+}
+
+bool comapreGcovSummaryFileDataAscending(const gcovSummaryFileData &a, const gcovSummaryFileData &b)
+{
+    return a.filename >= b.filename;
+}
+
+void cbGcovSummaryPanel::InitGrid(bool doSort, bool sortAscending)
+{
+    Summaries sum = summaries_;
+
+    if ( doSort )
+    {
+        if(sortAscending)
+            std::sort(sum.begin(), sum.end(), comapreGcovSummaryFileDataAscending);
+        else
+            std::sort(sum.begin(), sum.end(), comapreGcovSummaryFileDataDescending);
+    }
+
+    listCtrl->ClearAll();
 
     wxListItem col0;
     col0.SetId(0);
@@ -92,9 +123,9 @@ cbGcovSummaryPanel::cbGcovSummaryPanel(wxWindow* parent, const Summaries &summar
     col7.SetWidth(100);
     listCtrl->InsertColumn(7, col7);
 
-    for(size_t n = 0 ; n < summaries.size() ; ++n)
+    for(size_t n = 0 ; n < sum.size() ; ++n)
     {
-        const gcovSummaryFileData data = summaries[n];
+        const gcovSummaryFileData data = sum[n];
         wxListItem item;
         item.SetId(n);
         item.SetText( data.filename );
@@ -144,7 +175,6 @@ cbGcovSummaryPanel::~cbGcovSummaryPanel()
 	//*)
 }
 
-
 const wxString& cbGcovSummaryPanel::GetFilename() const
 {
     return shortName_;
@@ -168,3 +198,18 @@ void cbGcovSummaryPanel::ItemActivated(wxListEvent& event)
 
     Manager::Get()->GetEditorManager()->Open(filename);
 }
+
+
+void cbGcovSummaryPanel::OnColClick(wxListEvent& event)
+{
+    if(event.GetColumn() != 0)
+        return;
+
+    static bool ascending = false;
+    ascending = ascending ? false : true;
+
+    InitGrid(true, ascending);
+}
+
+
+

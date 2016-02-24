@@ -50,7 +50,7 @@ class cbGcovSummaryPanel: public EditorBase
 		virtual const wxString& GetShortName() const;
         virtual const wxString& GetTitle();
 
-        
+
         virtual bool VisibleToTree() const { return false; }/// not visible in open files list
 
 	protected:
@@ -61,6 +61,10 @@ class cbGcovSummaryPanel: public EditorBase
 
     private:
         static wxString shortName_;
+        void OnColClick( wxListEvent& event );
+        void InitGrid(bool doSort = false, bool sortAscending = true);
+        const Summaries summaries_;
+
 
 		//(*Handlers(cbGcovSummaryPanel)
 		void ItemActivated(wxListEvent& event);
