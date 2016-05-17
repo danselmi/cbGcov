@@ -53,6 +53,9 @@
 		<VirtualTargets>
 			<Add alias="All" targets="default;" />
 		</VirtualTargets>
+		<Compiler>
+			<Add option="-std=gnu++11" />
+		</Compiler>
 		<Unit filename="GcovProcess.cpp" />
 		<Unit filename="GcovProcess.h" />
 		<Unit filename="cbGcov.cpp" />
