@@ -658,7 +658,7 @@ void cbGcov::GetLineInfos(wxFileName filename, LineInformations &lineInfos)
     char* buff = new char[len+1];
     file.Read(buff, len);
     buff[len] = 0;
-    wxString file_buffer = wxString::FromAscii(buff);
+    wxString file_buffer(buff);
     delete [] buff;
 
     wxStringTokenizer tkz(file_buffer, wxT("\r\n"));
