@@ -212,6 +212,18 @@ void cbGcov::BuildMenu(wxMenuBar* menuBar)
         prjmenu->Append(idDoGcovAnalyze, _("Run Gcov on workspace"));
         prjmenu->Append(idAddInstrumentationToProject, _("Add Gcov instrumentation"), _("Add compiler/linker option to add gcov coverage instrumentation to project."));
     }
+
+    int editMenuPos = menuBar->FindMenu(_("Edit"));
+    if(editMenuPos != wxNOT_FOUND)
+    {
+        wxMenu *editMenu = menuBar->GetMenu(editMenuPos);
+        wxMenu *gcovMenu = new wxMenu();
+        gcovMenu->Append(idGotoNextNotExecutedLine,  _("next not executed line"), _("goto next not executed line"));
+        gcovMenu->Append(idGotoPrevNotExecutedLine,  _("previous not executed line"), _("goto previous not executed line"));
+        gcovMenu->Append(idGotoNextExecutedLine,     _("next executed line"), _("goto next executed line"));
+        gcovMenu->Append(idGotoPrevExecutedLine,     _("previous executed line"), _("goto previous executed line"));
+        editMenu->Append(wxID_ANY, _("cbGcov"), gcovMenu);
+    }
 }
 
 /**
@@ -252,20 +264,20 @@ bool cbGcov::BuildToolBar(wxToolBar* toolBar)
 
 void cbGcov::PopulateToolbar16(wxToolBar* toolBar)
 {
-    toolBar->AddTool(idGotoNextNotExecutedLine, _("next not executed line"), wxBitmap(redNext16_xpm), wxNullBitmap, wxITEM_NORMAL, _("next"), _("goto next not executed line"));
-    toolBar->AddTool(idGotoPrevNotExecutedLine, _("previous not executed line"), wxBitmap(redPrev16_xpm), wxNullBitmap, wxITEM_NORMAL, _("previous"), _("goto previous not executed line"));
+    toolBar->AddTool(idGotoNextNotExecutedLine, _("next not executed line"), wxBitmap(redNext16_xpm), wxNullBitmap, wxITEM_NORMAL, _("next uncovered"), _("goto next not executed line"));
+    toolBar->AddTool(idGotoPrevNotExecutedLine, _("previous not executed line"), wxBitmap(redPrev16_xpm), wxNullBitmap, wxITEM_NORMAL, _("previous uncovered"), _("goto previous not executed line"));
     toolBar->AddSeparator();
-    toolBar->AddTool(idGotoNextExecutedLine,  _("next executed line"), wxBitmap(greenNext16_xpm), wxNullBitmap, wxITEM_NORMAL, _("next"), _("goto next executed line"));
-    toolBar->AddTool(idGotoPrevExecutedLine, _("previous executed line"), wxBitmap(greenPrev16_xpm), wxNullBitmap, wxITEM_NORMAL, _("previous"), _("goto previous executed line"));
+    toolBar->AddTool(idGotoNextExecutedLine,  _("next executed line"), wxBitmap(greenNext16_xpm), wxNullBitmap, wxITEM_NORMAL, _("next covered"), _("goto next executed line"));
+    toolBar->AddTool(idGotoPrevExecutedLine, _("previous executed line"), wxBitmap(greenPrev16_xpm), wxNullBitmap, wxITEM_NORMAL, _("previous covered"), _("goto previous executed line"));
 
 }
 void cbGcov::PopulateToolbar22(wxToolBar* toolBar)
 {
-    toolBar->AddTool(idGotoNextNotExecutedLine, _("next not executed line"), wxBitmap(redNext22_xpm), wxNullBitmap, wxITEM_NORMAL, _("next"), _("goto next not executed line"));
-    toolBar->AddTool(idGotoPrevNotExecutedLine, _("previous not executed line"), wxBitmap(redPrev22_xpm), wxNullBitmap, wxITEM_NORMAL, _("previous"), _("goto previous not executed line"));
+    toolBar->AddTool(idGotoNextNotExecutedLine, _("next not executed line"), wxBitmap(redNext22_xpm), wxNullBitmap, wxITEM_NORMAL, _("next uncovered"), _("goto next not executed line"));
+    toolBar->AddTool(idGotoPrevNotExecutedLine, _("previous not executed line"), wxBitmap(redPrev22_xpm), wxNullBitmap, wxITEM_NORMAL, _("previous uncovered"), _("goto previous not executed line"));
     toolBar->AddSeparator();
-    toolBar->AddTool(idGotoNextExecutedLine,  _("next executed line"), wxBitmap(greenNext22_xpm), wxNullBitmap, wxITEM_NORMAL, _("next"), _("goto next executed line"));
-    toolBar->AddTool(idGotoPrevExecutedLine, _("previous executed line"), wxBitmap(greenPrev22_xpm), wxNullBitmap, wxITEM_NORMAL, _("previous"), _("goto previous executed line"));
+    toolBar->AddTool(idGotoNextExecutedLine,  _("next executed line"), wxBitmap(greenNext22_xpm), wxNullBitmap, wxITEM_NORMAL, _("next covered"), _("goto next executed line"));
+    toolBar->AddTool(idGotoPrevExecutedLine, _("previous executed line"), wxBitmap(greenPrev22_xpm), wxNullBitmap, wxITEM_NORMAL, _("previous covered"), _("goto previous executed line"));
 }
 
 cbConfigurationPanel* cbGcov::GetConfigurationPanel(wxWindow* parent)

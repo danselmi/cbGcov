@@ -138,19 +138,6 @@ void cbGcovSummaryPanel::InitGrid(bool doSort, bool sortAscending)
 
             float cov = 100.0*data.totalCodeLinesCalled/data.totalCodeLines;
             long id = listCtrl->SetItem(n, 2, wxString::Format(_T("%.2f"), cov));
-            //listCtrl->SetItemBackgroundColour(2, *wxRED);
-            wxListItem item;
-            item.SetId(n);
-            item.SetColumn(2);
-            item.SetMask(wxLIST_MASK_TEXT);
-            item.SetText(wxString::Format(_T("%.2f"), cov));
-            if(cov < 50)
-                listCtrl->SetItemBackgroundColour(n, wxColour(0xff,0x00,0x00, wxALPHA_TRANSPARENT));
-            else if(cov < 80)
-                listCtrl->SetItemBackgroundColour(n, wxColour(0xff,0xff,0x00));
-            else
-                listCtrl->SetItemBackgroundColour(n, *wxGREEN);
-            listCtrl->SetItem(item);
         }
         if(data.hasBranches)
         {
