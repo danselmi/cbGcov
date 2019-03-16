@@ -519,12 +519,13 @@ void cbGcov::GetStats(cbProject * prj)
         }
     }
 
-    wxString str;
-    int total_codeLinesCalled = 0;
-    int total_codeLines = 0;
 
-    str.Printf(_("Gcov summary: %d files analyzed"), processedFiles.size());
+    wxString str;
+    str.Printf(_("Gcov summary: %zu files analyzed"), processedFiles.GetCount());
     Log(str);
+
+    unsigned int total_codeLinesCalled = 0;
+    unsigned int total_codeLines = 0;
 
     Summaries summaries;
 
@@ -620,7 +621,7 @@ void cbGcov::GetStats(cbProject * prj)
     }
     if(total_codeLines)
     {
-        str.Printf(_("Total %d of %d lines executed (%.1f%%)"), total_codeLinesCalled,
+        str.Printf(_("Total %u of %u lines executed (%.1f%%)"), total_codeLinesCalled,
                 total_codeLines, 100.0 * (float)total_codeLinesCalled / (float)total_codeLines);
     }
     else
@@ -633,11 +634,11 @@ void cbGcov::GetStats(cbProject * prj)
 
     new cbGcovSummaryPanel( (wxWindow*)Manager::Get()->GetEditorManager()->GetNotebook(), summaries);
 
-    str.Printf(_("Workspace total: %d of %d lines executed (%.1f%%)"), m_CodeLinesCalled,
+    str.Printf(_("Workspace total: %u of %u lines executed (%.1f%%)"), m_CodeLinesCalled,
             m_CodeLines, 100.0 * (float)m_CodeLinesCalled / (float)m_CodeLines);
     Log(str);
     wxTimeSpan timeSpan = wxDateTime::UNow() - m_TimeSpan;
-    str.Printf(_("cbGov finished (%d minutes, %d seconds)"), timeSpan.GetMinutes(), timeSpan.GetSeconds().GetLo() -
+    str.Printf(_("cbGov finished (%u minutes, %u seconds)"), timeSpan.GetMinutes(), timeSpan.GetSeconds().GetLo() -
             60 * timeSpan.GetMinutes());
     Log(str);
 }
@@ -662,10 +663,12 @@ void cbGcov::GetLineInfos(wxFileName filename, LineInformations &lineInfos)
         return;
     }
 
+    //wxString file_buffer;
+    //file.ReadAll(&file_buffer);
+
     // Note: wxTextFile cannot open larger files.
     // wxFFile::ReadAll cannot read larger files to a wxString ?!
     // This is what seems to work always
-    int lines = 0;
     int len = file.Length();
     char* buff = new char[len+1];
     file.Read(buff, len);
@@ -675,6 +678,7 @@ void cbGcov::GetLineInfos(wxFileName filename, LineInformations &lineInfos)
 
     wxStringTokenizer tkz(file_buffer, wxT("\r\n"));
     wxString str;
+    unsigned int lines = 0;
     while(tkz.HasMoreTokens())
     {
         str = tkz.GetNextToken();
@@ -682,7 +686,7 @@ void cbGcov::GetLineInfos(wxFileName filename, LineInformations &lineInfos)
         lines++;
     }
 
-    str.Printf(_("%-40s: %d lines processed"), filename.GetFullPath().c_str(), lines);
+    str.Printf(_("%-40s: %u lines processed"), filename.GetFullPath().c_str(), lines);
     Log(str);
 }
 
