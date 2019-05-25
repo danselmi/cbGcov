@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<resource xmlns="http://www.wxwidgets.org/wxxrc" version="2.5.3.0">
+  <object class="wxToolBarAddOn" name="cb_gcov_toolbar">
+
+    <object class="tool" name="CB_GCOV_ID_NEXT_LINE_NOT_EXECUTED">
+      <tooltip>next uncovered</tooltip>
+      <longhelp>goto next not executed line</longhelp>
+      <bitmap>images/22x22/redNext.png</bitmap>
+    </object>
+
+    <object class="tool" name="CB_GCOV_ID_PREV_LINE_NOT_EXECUTED">
+      <tooltip>previous uncovered</tooltip>
+      <longhelp>goto previous not executed line</longhelp>
+      <bitmap>images/22x22/redPrev.png</bitmap>
+    </object>
+
+    <object class="separator"/>
+
+    <object class="tool" name="CB_GCOV_ID_NEXT_LINE_EXECUTED">
+      <tooltip>next covered</tooltip>
+      <longhelp>goto next executed line</longhelp>
+      <bitmap>images/22x22/greenNext.png</bitmap>
+    </object>
+
+    <object class="tool" name="CB_GCOV_ID_PREV_LINE_EXECUTED">
+      <tooltip>previous covered</tooltip>
+      <longhelp>goto previous executed line</longhelp>
+      <bitmap>images/22x22/greenPrev.png</bitmap>
+    </object>
+  </object>
+</resource>

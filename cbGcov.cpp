@@ -9,6 +9,7 @@
 #include <configmanager.h>
 #include <cbcolourmanager.h>
 
+#include <wx/xrc/xmlres.h>
 #include <wx/ffile.h>
 #include <wx/tokenzr.h>
 #include <wx/process.h>
@@ -26,19 +27,6 @@
 
 #include "cbGcovSummaryPanel.h"
 
-#include "resources/redNext16.xpm"
-#include "resources/redNext22.xpm"
-#include "resources/redNext32.xpm"
-#include "resources/redPrev16.xpm"
-#include "resources/redPrev22.xpm"
-#include "resources/redPrev32.xpm"
-#include "resources/greenNext16.xpm"
-#include "resources/greenNext22.xpm"
-#include "resources/greenNext32.xpm"
-#include "resources/greenPrev16.xpm"
-#include "resources/greenPrev22.xpm"
-#include "resources/greenPrev32.xpm"
-
 // Register the plugin with Code::Blocks.
 // We are using an anonymous namespace so we don't litter the global one.
 namespace
@@ -50,10 +38,10 @@ namespace
     const int idDoGcovAnalyze               = wxNewId();
     const int idAddInstrumentationToProject = wxNewId();
 
-    const int idGotoNextNotExecutedLine     = wxNewId();
-    const int idGotoPrevNotExecutedLine     = wxNewId();
-    const int idGotoNextExecutedLine        = wxNewId();
-    const int idGotoPrevExecutedLine        = wxNewId();
+    const int idGotoNextNotExecutedLine     = XRCID("CB_GCOV_ID_NEXT_LINE_NOT_EXECUTED");
+    const int idGotoPrevNotExecutedLine     = XRCID("CB_GCOV_ID_PREV_LINE_NOT_EXECUTED");
+    const int idGotoNextExecutedLine        = XRCID("CB_GCOV_ID_NEXT_LINE_EXECUTED");
+    const int idGotoPrevExecutedLine        = XRCID("CB_GCOV_ID_PREV_LINE_EXECUTED");
 }
 
 const int cbGcovNaMarker = 10;
@@ -254,46 +242,11 @@ bool cbGcov::BuildToolBar(wxToolBar* toolBar)
     if (!IsAttached() || !toolBar)
         return false;
 
-    int imageSize = Manager::Get()->GetToolbarImageSize();
-    if (imageSize <= 16)
-        PopulateToolbar16(toolBar);
-    else if (imageSize <= 22)
-        PopulateToolbar22(toolBar);
-    else //if (imageSize <= 32)
-       PopulateToolbar32(toolBar);
-
-    toolBar->Realize();
-    toolBar->SetInitialSize();
+    Manager::Get()->AddonToolBar(m_pTbar, _T("cb_gcov_toolbar"));
+    m_pTbar->Realize();
+    m_pTbar->SetInitialSize();
 
     return true;
-}
-
-void cbGcov::PopulateToolbar16(wxToolBar* toolBar)
-{
-    toolBar->AddTool(idGotoNextNotExecutedLine, _("next not executed line"), wxBitmap(redNext16_xpm), wxNullBitmap, wxITEM_NORMAL, _("next uncovered"), _("goto next not executed line"));
-    toolBar->AddTool(idGotoPrevNotExecutedLine, _("previous not executed line"), wxBitmap(redPrev16_xpm), wxNullBitmap, wxITEM_NORMAL, _("previous uncovered"), _("goto previous not executed line"));
-    toolBar->AddSeparator();
-    toolBar->AddTool(idGotoNextExecutedLine,  _("next executed line"), wxBitmap(greenNext16_xpm), wxNullBitmap, wxITEM_NORMAL, _("next covered"), _("goto next executed line"));
-    toolBar->AddTool(idGotoPrevExecutedLine, _("previous executed line"), wxBitmap(greenPrev16_xpm), wxNullBitmap, wxITEM_NORMAL, _("previous covered"), _("goto previous executed line"));
-
-}
-
-void cbGcov::PopulateToolbar22(wxToolBar* toolBar)
-{
-    toolBar->AddTool(idGotoNextNotExecutedLine, _("next not executed line"), wxBitmap(redNext22_xpm), wxNullBitmap, wxITEM_NORMAL, _("next uncovered"), _("goto next not executed line"));
-    toolBar->AddTool(idGotoPrevNotExecutedLine, _("previous not executed line"), wxBitmap(redPrev22_xpm), wxNullBitmap, wxITEM_NORMAL, _("previous uncovered"), _("goto previous not executed line"));
-    toolBar->AddSeparator();
-    toolBar->AddTool(idGotoNextExecutedLine,  _("next executed line"), wxBitmap(greenNext22_xpm), wxNullBitmap, wxITEM_NORMAL, _("next covered"), _("goto next executed line"));
-    toolBar->AddTool(idGotoPrevExecutedLine, _("previous executed line"), wxBitmap(greenPrev22_xpm), wxNullBitmap, wxITEM_NORMAL, _("previous covered"), _("goto previous executed line"));
-}
-
-void cbGcov::PopulateToolbar32(wxToolBar* toolBar)
-{
-    toolBar->AddTool(idGotoNextNotExecutedLine, _("next not executed line"), wxBitmap(redNext32_xpm), wxNullBitmap, wxITEM_NORMAL, _("next uncovered"), _("goto next not executed line"));
-    toolBar->AddTool(idGotoPrevNotExecutedLine, _("previous not executed line"), wxBitmap(redPrev32_xpm), wxNullBitmap, wxITEM_NORMAL, _("previous uncovered"), _("goto previous not executed line"));
-    toolBar->AddSeparator();
-    toolBar->AddTool(idGotoNextExecutedLine,  _("next executed line"), wxBitmap(greenNext32_xpm), wxNullBitmap, wxITEM_NORMAL, _("next covered"), _("goto next executed line"));
-    toolBar->AddTool(idGotoPrevExecutedLine, _("previous executed line"), wxBitmap(greenPrev32_xpm), wxNullBitmap, wxITEM_NORMAL, _("previous covered"), _("goto previous executed line"));
 }
 
 cbConfigurationPanel* cbGcov::GetConfigurationPanel(wxWindow* parent)
@@ -310,10 +263,8 @@ cbConfigurationPanel* cbGcov::GetConfigurationPanel(wxWindow* parent)
  */
 void cbGcov::InitTextCtrlForCovData(cbStyledTextCtrl *stc)
 {
-    if (!stc)
-    {
-        return;
-    }
+    if (!stc) return;
+
     // extra margin with coverage numbers per line
     stc->StyleSetForeground(cbGcovNaStyle, Manager::Get()->GetColourManager()->GetColour(wxT("cbgcov_not_executable")));
     stc->StyleSetForeground(cbGcovOkStyle, Manager::Get()->GetColourManager()->GetColour(wxT("cbgcov_executed")));
@@ -343,10 +294,8 @@ void cbGcov::InitTextCtrlForCovData(cbStyledTextCtrl *stc)
 void cbGcov::ClearCovData(cbEditor *ed)
 {
     cbStyledTextCtrl *stc = 0;
-    if(!ed || (stc = ed->GetControl()) == 0)
-    {
-        return;
-    }
+    if(!ed || (stc = ed->GetControl()) == 0) return;
+
     // do not show margin
     stc->SetMarginWidth(cbGcovMarginNumber, 0);
 
@@ -367,20 +316,15 @@ void cbGcov::ShowCovData(cbEditor *ed, cbProject* prj)
 {
     wxString jobsWorkingdir;
 
-    if(!ed)
-        return;
+    if(!ed) return;
 
     edLineExecInfos.erase(ed);
 
     // Either process a file belonging for a specific project, or use a global setting.
     if(!prj)
-    {
         jobsWorkingdir = m_JobsWorkingdir;
-    }
     else
-    {
         jobsWorkingdir = prj->GetBasePath();
-    }
 
     wxFileName basefilename(ed->GetFilename());
     wxFileName gcovfilename(jobsWorkingdir + basefilename.GetFullName() + _T(".gcov"));
@@ -794,14 +738,12 @@ void cbGcov::OnIdle(wxIdleEvent& event)
     if(m_pProcesses.size())
     {
         for(GcovProcesses_t::iterator it = m_pProcesses.begin(); it != m_pProcesses.end(); ++it)
-        {
             requestMore |= (*it).second->ReadProcessOutput();
-        }
     }
+
     if(requestMore)
-    {
         event.RequestMore();
-    }
+
     event.Skip();
 }
 
@@ -811,13 +753,9 @@ void cbGcov::OnIdle(wxIdleEvent& event)
  */
 void cbGcov::OnGcovReturned(wxProcessEvent & event)
 {
-    if(!m_pProcesses.size())
-    {
-        return;
-    }
-    GcovProcess* process = m_pProcesses[event.GetPid()];
+    if(!m_pProcesses.size()) return;
 
-    if(process)
+    if(GcovProcess* process = m_pProcesses[event.GetPid()])
     {
         while(process->ReadProcessOutput())
             ;
@@ -826,9 +764,7 @@ void cbGcov::OnGcovReturned(wxProcessEvent & event)
     }
 
     if(m_pProcesses.size() < m_ParallelProcessCount)
-    {
         StartGcov();
-    }
 }
 
 /**
@@ -871,10 +807,7 @@ void cbGcov::OnDoGcovWorkspace(wxCommandEvent &event)
         return;
     }
 
-    if(!prjs)
-    {
-        return;
-    }
+    if(!prjs) return;
 
     Log(_T("Starting gcov on all projects in workspace"));
 
@@ -901,15 +834,12 @@ void cbGcov::OnDoGcov(wxCommandEvent &event)
 {
     if(m_pProcesses.size())
     {
-        Log(_("cbGcov already running"));
+        Log(_T("cbGcov already running"));
         return;
     }
 
     cbProject * prj = Manager::Get()->GetProjectManager()->GetActiveProject();
-    if(!prj)
-    {
-        return;
-    }
+    if(!prj) return;
 
     Initialize();
     GcovProject(prj);
@@ -942,10 +872,8 @@ int cbGcov::WorkspaceNextProject()
  */
 void cbGcov::GcovProject(cbProject* prj)
 {
-    if(!prj || !prj->GetBuildTarget(prj->GetActiveBuildTarget()))
-    {
-        return;
-    }
+    if(!prj || !prj->GetBuildTarget(prj->GetActiveBuildTarget())) return;
+
     Log(_("Starting cbGcov on '") + prj->GetTitle() + _("'"));
     m_JobsWorkingdir = prj->GetBasePath();
     wxString sep = wxFILE_SEP_PATH;
@@ -965,18 +893,13 @@ void cbGcov::GcovProject(cbProject* prj)
             QuoteStringIfNeeded(srcfile);
 
             wxString cmd = GetGcovBinaryName() + _T(" -ac");
-            if(config_)
-            {
-                cmd += wxString(config_->outputFunctionSummaries ? _T("f") : _T("")) +
-                       wxString(config_->branchProbabilities ? _T("b") : _T("")) +
-                       wxString(config_->demangleNames ? _T("m") : _T(""));
-            }
-            else
-            {
-                cmd += wxString(_T("fb"));
-            }
-            cmd += (objdir.IsEmpty() ? _T(" ") : _T(" -o ") + objdir + _T(" ")) +
-                    srcfile;
+            cmd += config_ ?
+                (wxString(config_->outputFunctionSummaries ? _T("f") : _T("")) +
+                          wxString(config_->branchProbabilities ? _T("b") : _T("")) +
+                          wxString(config_->demangleNames ? _T("m") : _T(""))) :
+                wxString(_T("fb"));
+
+            cmd += (objdir.IsEmpty() ? _T(" ") : _T(" -o ") + objdir + _T(" ")) + srcfile;
 
             m_Cmds.Add(cmd);
         }
@@ -993,9 +916,7 @@ void cbGcov::GcovProject(cbProject* prj)
 void cbGcov::StartGcov()
 {
     if(m_Cmds.GetCount())
-    {
         StartGcovParallel();
-    }
     else if(!m_pProcesses.size())    // Some processes may still be running even with 0 cmd count left
     {
         // gcov has fished running on all files of the project, update relevant editor windows
@@ -1012,20 +933,15 @@ void cbGcov::StartGcov()
  */
 void cbGcov::StartGcovParallel()
 {
-    if(m_pProcesses.size() >= m_ParallelProcessCount)
-    {
-        return;
-    }
+    if(m_pProcesses.size() >= m_ParallelProcessCount) return;
 
     wxString curDir = wxGetCwd();
     wxSetWorkingDirectory(m_JobsWorkingdir);
 
     while(m_pProcesses.size() < m_ParallelProcessCount)
     {
-        if(!m_Cmds.size())
-        {
-            break;
-        }
+        if(!m_Cmds.size()) break;
+
         wxString cmd = m_Cmds[0];
         m_Cmds.RemoveAt(0);
 
@@ -1036,18 +952,16 @@ void cbGcov::StartGcovParallel()
             Log(_("Error calling gcov"));
             return; // if not returning here, then take care of infinite loop not taking place
         }
-        else
-        {
-            Log(cmd);
-            if (m_pProcesses.find(pid) != m_pProcesses.end() || m_Output.find(pid) != m_Output.end())
-            {
-                // pid already used by us?
-            }
 
-            m_pProcesses[pid] = process;
-            m_Output[pid] = wxArrayString();
-            process->SetId(pid);
+        Log(cmd);
+        if (m_pProcesses.find(pid) != m_pProcesses.end() || m_Output.find(pid) != m_Output.end())
+        {
+            // pid already used by us?
         }
+
+        m_pProcesses[pid] = process;
+        m_Output[pid] = wxArrayString();
+        process->SetId(pid);
     }
 
     wxSetWorkingDirectory(curDir);
@@ -1063,21 +977,13 @@ void cbGcov::UpdateEditors(cbProject* prj)
     for (FilesList::iterator it = prj->GetFilesList().begin(); it != prj->GetFilesList().end(); ++it)
     {
         ProjectFile* prjfile = *it;
-        if(prjfile)
-        {
-            wxString srcfile = prjfile->file.GetFullPath();
-            for(unsigned int i = 0 ; i < m_JobsFileList.GetCount() ; ++i)
-            {
-                if(m_JobsFileList[i] == srcfile)
-                {
-                    cbEditor *ed = Manager::Get()->GetEditorManager()->GetBuiltinEditor(m_JobsFileList[i]);
-                    if(ed)
-                    {
-                        ShowCovData(ed);
-                    }
-                }
-            }
-        }
+        if(!prjfile) continue;
+
+        wxString srcfile = prjfile->file.GetFullPath();
+        for(unsigned int i = 0 ; i < m_JobsFileList.GetCount() ; ++i)
+            if(m_JobsFileList[i] == srcfile)
+                if(cbEditor *ed = Manager::Get()->GetEditorManager()->GetBuiltinEditor(m_JobsFileList[i]))
+                    ShowCovData(ed);
     }
 }
 
@@ -1088,20 +994,13 @@ void cbGcov::OnEditorOpen(CodeBlocksEvent &event)
 {
     EditorBase * eb = event.GetEditor();
     cbProject* prj = event.GetProject();  // this is always null?
-    if(!eb || !eb->IsBuiltinEditor())
-    {
-        return;
-    }
+    if(!eb || !eb->IsBuiltinEditor()) return;
 
     cbEditor *ed = Manager::Get()->GetEditorManager()->GetBuiltinEditor(eb);
-    if(!ed)
-    {
-        return;
-    }
+    if(!ed) return;
+
     if(!prj && ed->GetProjectFile())
-    {
         prj = ed->GetProjectFile()->GetParentProject();  // this one too ? :(
-    }
 
     ShowCovData(ed, prj);
 }
@@ -1112,13 +1011,11 @@ void cbGcov::OnEditorOpen(CodeBlocksEvent &event)
 void cbGcov::OnEditorClose(CodeBlocksEvent &event)
 {
     EditorBase * eb = event.GetEditor();
-    if(!eb || !eb->IsBuiltinEditor())return;
+    if(!eb || !eb->IsBuiltinEditor()) return;
 
     cbEditor *ed = Manager::Get()->GetEditorManager()->GetBuiltinEditor(eb);
-    if(!ed)
-    {
-        return;
-    }
+    if(!ed) return;
+
     edLineExecInfos.erase(ed);
 }
 
@@ -1129,13 +1026,10 @@ void cbGcov::OnEditorClose(CodeBlocksEvent &event)
 void cbGcov::OnEditorModified(CodeBlocksEvent &event)
 {
     EditorBase * eb = event.GetEditor();
-    if(!eb || !eb->IsBuiltinEditor())return;
+    if(!eb || !eb->IsBuiltinEditor()) return;
 
     cbEditor *ed = Manager::Get()->GetEditorManager()->GetBuiltinEditor(eb);
-    if(!ed)
-    {
-        return;
-    }
+    if(!ed) return;
 
     edLineExecInfos.erase(ed);
     ClearCovData(ed);
@@ -1159,9 +1053,7 @@ void cbGcov::OnCleanWorkspace(CodeBlocksEvent &event)
     for(int i = 0; i < prjs->GetCount(); ++i)
     {
         if(prjs->Item(i))
-        {
             CleanProject(prjs->Item(i));
-        }
     }
 }
 
@@ -1170,10 +1062,8 @@ void cbGcov::OnCleanWorkspace(CodeBlocksEvent &event)
  */
 void cbGcov::CleanProject(cbProject* prj)
 {
-    if(!prj || !prj->GetBuildTarget(prj->GetActiveBuildTarget()))
-    {
-        return;
-    }
+    if(!prj || !prj->GetBuildTarget(prj->GetActiveBuildTarget())) return;
+
     wxString sep = wxFILE_SEP_PATH;
     wxString objOutput = prj->GetBuildTarget(prj->GetActiveBuildTarget())->GetObjectOutput();
     for (FilesList::iterator it = prj->GetFilesList().begin(); it != prj->GetFilesList().end(); ++it)
@@ -1197,9 +1087,7 @@ void cbGcov::CleanProject(cbProject* prj)
 void cbGcov::OnProjectActivate(CodeBlocksEvent &event)
 {
     if(!IsRunning() && event.GetProject())
-    {
         m_JobsWorkingdir = event.GetProject()->GetBasePath();
-    }
 }
 
 /**
@@ -1216,9 +1104,7 @@ int cbGcov::IsRunning()
 void cbGcov::Log(wxString str)
 {
     if(LogManager* LogMan = Manager::Get()->GetLogManager())
-    {
         LogMan->Log(str);
-    }
 }
 
 /**
@@ -1340,32 +1226,24 @@ void cbGcov::UpdateConfig()
     config_->branchProbabilities = cfg->ReadBool(_T("/BranchProbabilities"), true);
 }
 
-
 void cbGcov::OnGotoNextNotExecutedLine(wxCommandEvent &event)
 {
     cbEditor *ed = Manager::Get()->GetEditorManager()->GetBuiltinActiveEditor();
-    if(ed)
-    {
-        EditorExecNotexecLines::iterator itr = edLineExecInfos.find(ed);
-        if(itr != edLineExecInfos.end())
-        {
-            if ( !(itr->second.NotexecLines.size()) )
-                return;
-            cbStyledTextCtrl *stc = ed->GetControl();
-            uint32_t currLine = stc->GetCurrentLine();
+    if(!ed) return;
 
-            std::vector<unsigned int>::iterator it;
-            for(
-                it = itr->second.NotexecLines.begin();
-                it != itr->second.NotexecLines.end();
-                ++it)
-            {
-                if ( *it > currLine )
-                {
-                    stc->GotoLine(*it);
-                    return;
-                }
-            }
+    EditorExecNotexecLines::iterator itr = edLineExecInfos.find(ed);
+    if(itr == edLineExecInfos.end()) return;
+
+    if ( !(itr->second.NotexecLines.size()) ) return;
+
+    cbStyledTextCtrl *stc = ed->GetControl();
+    uint32_t currLine = stc->GetCurrentLine();
+    for(auto it = itr->second.NotexecLines.begin(); it != itr->second.NotexecLines.end(); ++it)
+    {
+        if ( *it > currLine )
+        {
+            stc->GotoLine(*it);
+            return;
         }
     }
 }
@@ -1373,60 +1251,46 @@ void cbGcov::OnGotoNextNotExecutedLine(wxCommandEvent &event)
 void cbGcov::OnGotoPreviousNotExecutedLine(wxCommandEvent &event)
 {
     cbEditor *ed = Manager::Get()->GetEditorManager()->GetBuiltinActiveEditor();
-    if(ed)
-    {
-        EditorExecNotexecLines::iterator itr = edLineExecInfos.find(ed);
-        if(itr != edLineExecInfos.end())
-        {
-            if ( !(itr->second.NotexecLines.size()) )
-                return;
-            cbStyledTextCtrl *stc = ed->GetControl();
-            uint32_t currLine = stc->GetCurrentLine();
+    if(!ed) return;
 
-            unsigned int target = itr->second.NotexecLines[0];
-            std::vector<unsigned int>::iterator it;
-            for(
-                it = itr->second.NotexecLines.begin();
-                it != itr->second.NotexecLines.end();
-                ++it)
-            {
-                if ( *it >= currLine )
-                {
-                    stc->GotoLine(target);
-                    return;
-                }
-                target = *it;
-            }
+    EditorExecNotexecLines::iterator itr = edLineExecInfos.find(ed);
+    if(itr == edLineExecInfos.end()) return;
+
+    if ( !(itr->second.NotexecLines.size()) ) return;
+
+    cbStyledTextCtrl *stc = ed->GetControl();
+    uint32_t currLine = stc->GetCurrentLine();
+    unsigned int target = itr->second.NotexecLines[0];
+    for(auto it = itr->second.NotexecLines.begin(); it != itr->second.NotexecLines.end(); ++it)
+    {
+        if ( *it >= currLine )
+        {
             stc->GotoLine(target);
+            return;
         }
+        target = *it;
     }
+    stc->GotoLine(target);
 }
 
 void cbGcov::OnGotoNextExecutedLine(wxCommandEvent &event)
 {
     cbEditor *ed = Manager::Get()->GetEditorManager()->GetBuiltinActiveEditor();
-    if(ed)
-    {
-        EditorExecNotexecLines::iterator itr = edLineExecInfos.find(ed);
-        if(itr != edLineExecInfos.end())
-        {
-            if ( !(itr->second.ExecLines.size()) )
-                return;
-            cbStyledTextCtrl *stc = ed->GetControl();
-            uint32_t currLine = stc->GetCurrentLine();
+    if(!ed) return;
 
-            std::vector<unsigned int>::iterator it;
-            for(
-                it = itr->second.ExecLines.begin();
-                it != itr->second.ExecLines.end();
-                ++it)
-            {
-                if ( *it > currLine )
-                {
-                    stc->GotoLine(*it);
-                    return;
-                }
-            }
+    EditorExecNotexecLines::iterator itr = edLineExecInfos.find(ed);
+    if(itr == edLineExecInfos.end()) return;
+
+    if ( !(itr->second.ExecLines.size()) ) return;
+
+    cbStyledTextCtrl *stc = ed->GetControl();
+    uint32_t currLine = stc->GetCurrentLine();
+    for(auto it = itr->second.ExecLines.begin(); it != itr->second.ExecLines.end(); ++it)
+    {
+        if ( *it > currLine )
+        {
+            stc->GotoLine(*it);
+            return;
         }
     }
 }
@@ -1434,121 +1298,77 @@ void cbGcov::OnGotoNextExecutedLine(wxCommandEvent &event)
 void cbGcov::OnGotoPreviousExecutedLine(wxCommandEvent &event)
 {
     cbEditor *ed = Manager::Get()->GetEditorManager()->GetBuiltinActiveEditor();
-    if(ed)
-    {
-        EditorExecNotexecLines::iterator itr = edLineExecInfos.find(ed);
-        if(itr != edLineExecInfos.end())
-        {
-            if ( !(itr->second.ExecLines.size()) )
-                return;
-            cbStyledTextCtrl *stc = ed->GetControl();
-            uint32_t currLine = stc->GetCurrentLine();
+    if(!ed) return;
 
-            unsigned int target = itr->second.ExecLines[0];
-            std::vector<unsigned int>::iterator it;
-            for(
-                it = itr->second.ExecLines.begin();
-                it != itr->second.ExecLines.end();
-                ++it)
-            {
-                if ( *it >= currLine )
-                {
-                    stc->GotoLine(target);
-                    return;
-                }
-                target = *it;
-            }
+    EditorExecNotexecLines::iterator itr = edLineExecInfos.find(ed);
+    if(itr == edLineExecInfos.end()) return;
+
+    if ( !(itr->second.ExecLines.size()) ) return;
+
+    cbStyledTextCtrl *stc = ed->GetControl();
+    uint32_t currLine = stc->GetCurrentLine();
+    unsigned int target = itr->second.ExecLines[0];
+    for(auto it = itr->second.ExecLines.begin(); it != itr->second.ExecLines.end(); ++it)
+    {
+        if ( *it >= currLine )
+        {
             stc->GotoLine(target);
+            return;
         }
+        target = *it;
     }
+    stc->GotoLine(target);
 }
 
 void cbGcov::OnUpdateNextNotExecutedLine(wxUpdateUIEvent &event)
 {
     event.Enable(false);
     cbEditor *ed = Manager::Get()->GetEditorManager()->GetBuiltinActiveEditor();
-    if(ed)
-    {
-        EditorExecNotexecLines::iterator itr = edLineExecInfos.find(ed);
-        if(itr != edLineExecInfos.end())
-        {
-            if ( size_t sz = itr->second.NotexecLines.size() )
-            {
-                cbStyledTextCtrl *stc = ed->GetControl();
-                uint32_t currLine = stc->GetCurrentLine();
-                if(itr->second.NotexecLines[sz-1] > currLine)
-                {
-                    event.Enable(true);
-                }
-            }
-        }
-    }
+    if(!ed) return;
+
+    EditorExecNotexecLines::iterator itr = edLineExecInfos.find(ed);
+    if(itr == edLineExecInfos.end()) return;
+
+    if ( size_t sz = itr->second.NotexecLines.size() )
+        event.Enable(itr->second.NotexecLines[sz-1] > ed->GetControl()->GetCurrentLine());
 }
 
 void cbGcov::OnUpdatePreviousNotExecutedLine(wxUpdateUIEvent &event)
 {
     event.Enable(false);
     cbEditor *ed = Manager::Get()->GetEditorManager()->GetBuiltinActiveEditor();
-    if(ed)
-    {
-        EditorExecNotexecLines::iterator itr = edLineExecInfos.find(ed);
-        if(itr != edLineExecInfos.end())
-        {
-            if ( size_t sz = itr->second.NotexecLines.size() )
-            {
-                cbStyledTextCtrl *stc = ed->GetControl();
-                uint32_t currLine = stc->GetCurrentLine();
-                if(itr->second.NotexecLines[0] < currLine)
-                {
-                    event.Enable(true);
-                }
-            }
-        }
-    }
+    if(!ed) return;
+
+    EditorExecNotexecLines::iterator itr = edLineExecInfos.find(ed);
+    if(itr == edLineExecInfos.end()) return;
+
+    if ( size_t sz = itr->second.NotexecLines.size() )
+        event.Enable(itr->second.NotexecLines[0] < ed->GetControl()->GetCurrentLine());
 }
 
 void cbGcov::OnUpdateNextExecutedLine(wxUpdateUIEvent &event)
 {
     event.Enable(false);
     cbEditor *ed = Manager::Get()->GetEditorManager()->GetBuiltinActiveEditor();
-    if(ed)
-    {
-        EditorExecNotexecLines::iterator itr = edLineExecInfos.find(ed);
-        if(itr != edLineExecInfos.end())
-        {
-            if ( size_t sz = itr->second.ExecLines.size() )
-            {
-                cbStyledTextCtrl *stc = ed->GetControl();
-                uint32_t currLine = stc->GetCurrentLine();
-                if(itr->second.ExecLines[sz-1] > currLine)
-                {
-                    event.Enable(true);
-                }
-            }
-        }
-    }
+    if(!ed) return;
+
+    EditorExecNotexecLines::iterator itr = edLineExecInfos.find(ed);
+    if(itr == edLineExecInfos.end()) return;
+
+    if ( size_t sz = itr->second.ExecLines.size() )
+        event.Enable(itr->second.ExecLines[sz-1] > ed->GetControl()->GetCurrentLine());
 }
 
 void cbGcov::OnUpdatePreviousExecutedLine(wxUpdateUIEvent &event)
 {
     event.Enable(false);
     cbEditor *ed = Manager::Get()->GetEditorManager()->GetBuiltinActiveEditor();
-    if(ed)
-    {
-        EditorExecNotexecLines::iterator itr = edLineExecInfos.find(ed);
-        if(itr != edLineExecInfos.end())
-        {
-            if ( size_t sz = itr->second.ExecLines.size() )
-            {
-                cbStyledTextCtrl *stc = ed->GetControl();
-                uint32_t currLine = stc->GetCurrentLine();
-                if(itr->second.ExecLines[0] < currLine)
-                {
-                    event.Enable(true);
-                }
-            }
-        }
-    }
-}
+    if(!ed) return;
 
+    EditorExecNotexecLines::iterator itr = edLineExecInfos.find(ed);
+    if(itr == edLineExecInfos.end()) return;
+
+    if ( size_t sz = itr->second.ExecLines.size() )
+        event.Enable(itr->second.ExecLines[0] < ed->GetControl()->GetCurrentLine());
+}
 

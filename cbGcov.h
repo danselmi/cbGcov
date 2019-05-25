@@ -211,9 +211,6 @@ private:
     void OnUpdateNextExecutedLine(wxUpdateUIEvent &event);
     void OnUpdatePreviousExecutedLine(wxUpdateUIEvent &event);
     wxToolBar* m_pTbar;
-    void PopulateToolbar16(wxToolBar* toolBar);
-    void PopulateToolbar22(wxToolBar* toolBar);
-    void PopulateToolbar32(wxToolBar* toolBar);
 public:
     void OnProcessGeneratedOutputLine(const wxString &line, unsigned int id);
 

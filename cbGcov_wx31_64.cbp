@@ -22,6 +22,7 @@
 					<Add option="-fmessage-length=0" />
 					<Add option="-fexceptions" />
 					<Add option="-Winvalid-pch" />
+					<Add option="$(#CB_RELEASE_TYPE)" />
 					<Add option="-DBUILDING_PLUGIN" />
 					<Add option="-DHAVE_W32API_H" />
 					<Add option="-D__WXMSW__" />
@@ -45,7 +46,9 @@
 					<Add directory="$(#wx31_64.lib)/gcc_dll" />
 				</Linker>
 				<ExtraCommands>
-					<Add after="zip -j9 ..\..\..\devel31_64\share\codeblocks\cbGcov.zip manifest.xml" />
+					<Add after="zip -j9 ..\..\..\devel31_64\share\codeblocks\cbGcov.zip manifest.xml *.xrc" />
+					<Add after="zip -Rq9 ..\..\..\devel31_64\share\codeblocks\cbGcov.zip images\64x64\*.png images\56x56\*.png images\48x48\*.png images\40x40\*.png images\32x32\*.png images\28x28\*.png images\24x24\*.png images\20x20\*.png images\16x16\*.png" />
+					<Mode after="always" />
 				</ExtraCommands>
 			</Target>
 		</Build>
