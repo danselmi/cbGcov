@@ -25,10 +25,11 @@ When the project has been built it is time to run it and let gcov collect the da
 Now it is time to run gcov over the project:\
 ![alt text](https://github.com/danselmi/cbGcov/raw/master/doc/RunGcov.png "")
 
-After gcov has finished, cbGcov will show a summary for the project:
+After gcov has finished, cbGcov will show a summary for the project:\
 ![alt text](https://github.com/danselmi/cbGcov/raw/master/doc/SummaryScreen.png "")
 
-After opening a sourcefile (by doubleclicking it in project manager or cbGcov summary) the file is shown with annotations from gcov: ![alt text](https://github.com/danselmi/cbGcov/raw/master/doc/AnnotatedSource.png "")
+After opening a sourcefile (by doubleclicking it in project manager or cbGcov summary) the file is shown with annotations from gcov:\
+![alt text](https://github.com/danselmi/cbGcov/raw/master/doc/AnnotatedSource.png "")
 
 With the toolbar ![alt text](https://github.com/danselmi/cbGcov/raw/master/doc/Toolbar.png "") you can goto next/previous line with a coverage of 0 (red) or a coverage >0 (green).
 
