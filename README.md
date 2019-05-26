@@ -22,7 +22,7 @@ This step needs to be done only once per project.
 ### Get the coverage Data ###
 When the project has been built it is time to run it and let gcov collect the data. This is ideally done with a unit test project.
 
-Now it is time to run gcov over the project:
+Now it is time to run gcov over the project:\
 ![alt text](https://github.com/danselmi/cbGcov/raw/master/doc/RunGcov.png "")
 
 After gcov has finished, cbGcov will show a summary for the project:
