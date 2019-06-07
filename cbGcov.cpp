@@ -227,7 +227,7 @@ void cbGcov::BuildModuleMenu(const ModuleType type, wxMenu* menu, const FileTree
     //Check the parameter \"type\" and see which module it is
     //and append any items you need in the menu...
     //TIP: for consistency, add a separator as the first item...
-    NotImplemented(_T("cbCov::BuildModuleMenu()"));
+    NotImplemented(_T("cbGcov::BuildModuleMenu()"));
 }
 
 /**
