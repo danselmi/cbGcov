@@ -35,10 +35,8 @@ struct cbGcovConfig;
 class cbGcov : public cbPlugin
 {
 public:
-    /** Constructor. */
     cbGcov();
-    /** Destructor. */
-    virtual ~cbGcov();
+    virtual ~cbGcov(){}
 
     /** Invoke configuration dialog. */
     virtual int Configure();

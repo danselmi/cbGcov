@@ -70,8 +70,6 @@ END_EVENT_TABLE()
  * @brief Default constructor. Checks for resource file, initializes internal state.
  */
 cbGcov::cbGcov()
-//:m_pProcess(NULL)
-//,JodDone(false)
 {
     config_ = new cbGcovConfig;
     // Make sure our resources are available.
@@ -82,13 +80,6 @@ cbGcov::cbGcov()
         NotifyMissingFile(_T("cbGcov.zip"));
     }
     Initialize();
-}
-
-/**
- * @brief Empty default destructor.
- */
-cbGcov::~cbGcov()
-{
 }
 
 /**
