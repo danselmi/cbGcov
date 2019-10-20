@@ -1,9 +1,9 @@
 #include "cbGcovConfigPanel.h"
 
 //(*InternalHeaders(cbGcovConfigPanel)
-#include <wx/sizer.h>
 #include <wx/checkbox.h>
 #include <wx/intl.h>
+#include <wx/sizer.h>
 #include <wx/string.h>
 //*)
 
@@ -24,8 +24,8 @@ cbGcovConfigPanel::cbGcovConfigPanel(wxWindow* parent, cbGcov *plugin, wxWindowI
     plugin_(plugin)
 {
 	//(*Initialize(cbGcovConfigPanel)
-	wxBoxSizer* BoxSizer2;
 	wxBoxSizer* BoxSizer1;
+	wxBoxSizer* BoxSizer2;
 
 	Create(parent, id, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL, _T("id"));
 	BoxSizer1 = new wxBoxSizer(wxVERTICAL);
@@ -75,10 +75,6 @@ void cbGcovConfigPanel::OnApply()
         cfg->Write(_T("/BranchProbabilities"), BranchProbabilitiesCheckBox->GetValue());
         plugin_->UpdateConfig();
     }
-}
-
-void cbGcovConfigPanel::OnCancel()
-{
 }
 
 wxString cbGcovConfigPanel::GetTitle() const

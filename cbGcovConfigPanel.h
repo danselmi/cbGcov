@@ -5,8 +5,8 @@
 
 //(*Headers(cbGcovConfigPanel)
 #include <wx/panel.h>
-class wxCheckBox;
 class wxBoxSizer;
+class wxCheckBox;
 //*)
 class cbGcov;
 
@@ -18,9 +18,9 @@ class cbGcovConfigPanel: public cbConfigurationPanel
 		virtual ~cbGcovConfigPanel();
 
 		//(*Declarations(cbGcovConfigPanel)
-		wxCheckBox* FunctionSummariesCheckBox;
 		wxCheckBox* BranchProbabilitiesCheckBox;
 		wxCheckBox* DemangleNamesCheckBox;
+		wxCheckBox* FunctionSummariesCheckBox;
 		//*)
 
         /// @return the panel's title.
@@ -30,7 +30,7 @@ class cbGcovConfigPanel: public cbConfigurationPanel
         /// Called when the user chooses to apply the configuration.
         virtual void OnApply();
         /// Called when the user chooses to cancel the configuration.
-        virtual void OnCancel();
+        virtual void OnCancel(){}
 	protected:
 
 		//(*Identifiers(cbGcovConfigPanel)
